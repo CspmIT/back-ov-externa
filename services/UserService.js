@@ -391,4 +391,18 @@ const updatePrimaryAccountUserProcoop = async (id_relation, id) => {
 	})
 }
 
-module.exports = { getUserxNumCustomer, getUserxEmail, setTokenTemporal, RegisterAcept, verifyEmailToken, getUser, getLevel, updateLvl2, saveUser, getUserxDni, deleteUserPersonMember, updatePrimaryAccountUserProcoop, createPersonProcoop }
+module.exports = {
+	getUserxNumCustomer,
+	getUserxEmail,
+	setTokenTemporal,
+	RegisterAcept,
+	verifyEmailToken,
+	getUser,
+	getLevel,
+	updateLvl2,
+	saveUser,
+	getUserxDni,
+	deleteUserPersonMember,
+	updatePrimaryAccountUserProcoop,
+	createPersonProcoop,
+}

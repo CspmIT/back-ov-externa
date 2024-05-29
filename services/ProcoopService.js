@@ -1,7 +1,8 @@
 const { QueryTypes } = require('sequelize')
 const { SequelizeMorteros } = require('../database/MSSQL.database')
 const { db } = require('../models')
-const { createPersonProcoop } = require('./UserService')
+// const { createPersonProcoop } = require('./UserService')
+
 const conexionProcoop = async () => {
 	try {
 		await SequelizeMorteros.authenticate()
@@ -256,7 +257,7 @@ const getOrCreateProcoopMember = async (num_Customer, user) => {
 			const [user_procoop, created] = await db.Person.findOrCreate({ where: { number_customer: num_Customer }, default: { number_customer: num_Customer }, transaction: t })
 			if (created) {
 				const dataProcoop = await Persona_x_COD_SOC(num_Customer)
-				createPersonProcoop(dataUpdate, user, dataProcoop, t)
+				// createPersonProcoop(dataUpdate, user, dataProcoop, t)
 				const dataProcoopMember = {
 					number_customer: num_Customer,
 					mail_procoop: dataProcoop[0].EMAIL,

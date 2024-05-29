@@ -7,6 +7,7 @@ const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress } = require('../controllers/Location.controller')
 const { customerServicesDetail } = require('../controllers/Services.controller')
 const { newRequestService, getRequestsByUser } = require('../controllers/RequestService.controller')
+const { peopleByDocumentNumber } = require('../controllers/Person.controller')
 
 router.get('/test', (req, res) => {
 	res.json({ message: 'Test route' })
@@ -52,5 +53,8 @@ router.get('/searchUserxNumCustomer', verifyToken, searchUserxNumCustomer)
 // FUNCIONES PARA SOLICITUD DE SERVICIOS
 router.post('/createRequestService', verifyToken, newRequestService)
 router.post('/getRequestsByUser', verifyToken, getRequestsByUser)
+
+// Funciones de Peoples
+router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
 
 module.exports = router

@@ -61,7 +61,7 @@ async function getNameCustomer(req, res) {
 	try {
 		const { customer } = req.body
 		const result = await Persona_x_COD_SOC(customer)
-		return res.status(200).json(result[0].APELLIDOS)
+		return res.status(200).json(result)
 	} catch (error) {
 		return res.status(400).json({ message: error.message })
 	}
@@ -71,7 +71,7 @@ async function addUserPersonMember(req, res) {
 	try {
 		const { customer } = req.body
 		const { id } = req.user
-		const ProcoopMember = await getOrCreateProcoopMember(customer)
+		const ProcoopMember = await getOrCreateProcoopMember(customer, req.user)
 		const relationUserProcoopMember = await getOrCreateUser_ProcoopMember(ProcoopMember.id, id)
 		const dataResult = {
 			id_relation: relationUserProcoopMember.id,

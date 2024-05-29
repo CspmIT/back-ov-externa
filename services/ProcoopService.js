@@ -1,6 +1,7 @@
 const { QueryTypes } = require('sequelize')
 const { SequelizeMorteros } = require('../database/MSSQL.database')
 const { db } = require('../models')
+const { createPersonProcoop } = require('./UserService')
 const conexionProcoop = async () => {
 	try {
 		await SequelizeMorteros.authenticate()
@@ -63,6 +64,8 @@ const invoicesXsocio = async (id_procoop) => {
 const Persona_x_COD_SOC = async (numberCustomer) => {
 	try {
 		if (!numberCustomer) throw new Error('falta pasar el numero de socio')
+		const user = await db.Person.findOne({ where: { number_customer: numberCustomer }, include: [{ association: 'Person_physical' }, { association: 'Person_legal' }] })
+		if (user) return user
 		const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
 		const result = await SequelizeMorteros.query(query, {
 			replacements: { numberCustomer: numberCustomer },
@@ -247,12 +250,13 @@ const getProcoopMemberxDni = async (dni) => {
  *                            Si se crea un nuevo miembro, se actualiza con información adicional.
  *                            En caso de error, devuelve un objeto con la propiedad 'error'.
  */
-const getOrCreateProcoopMember = async (num_Customer) => {
+const getOrCreateProcoopMember = async (num_Customer, user) => {
 	return db.sequelize.transaction(async (t) => {
 		try {
-			const [user_procoop, created] = await db.Procoop_Member.findOrCreate({ where: { number_customer: num_Customer }, default: { number_customer: num_Customer }, transaction: t })
+			const [user_procoop, created] = await db.Person.findOrCreate({ where: { number_customer: num_Customer }, default: { number_customer: num_Customer }, transaction: t })
 			if (created) {
 				const dataProcoop = await Persona_x_COD_SOC(num_Customer)
+				createPersonProcoop(dataUpdate, user, dataProcoop, t)
 				const dataProcoopMember = {
 					number_customer: num_Customer,
 					mail_procoop: dataProcoop[0].EMAIL,

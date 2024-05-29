@@ -35,7 +35,7 @@ const getRequestServiceByUser = async (userID) => {
 		where: { id_user: userID },
 		include: [
 			{
-				association: 'Service_Items',
+				association: 'ServiceItems',
 			},
 		],
 	})

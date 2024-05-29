@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			this.belongsTo(models.Person, { foreignKey: 'id_person', targetKey: 'id', as: 'People' })
 			this.belongsTo(models.User, { foreignKey: 'id_user', as: 'Users' })
-			this.hasMany(models.Service_Items, { foreignKey: 'id_service_request', as: 'Service_Items' })
+			this.hasMany(models.Service_Items, { foreignKey: 'id_service_request', as: 'ServiceItems' })
 		}
 	}
 	Service_Request.init(

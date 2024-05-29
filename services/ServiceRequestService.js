@@ -32,7 +32,7 @@ const createRequestService = async (userID, services) => {
 
 const getRequestServiceByUser = async (userID) => {
 	const requests = await db.Service_Request.findAll({
-		where: { id_user: userID },
+		where: { id_user: userID, return_later: 1 },
 		include: [
 			{
 				association: 'ServiceItems',

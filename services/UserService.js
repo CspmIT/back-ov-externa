@@ -14,7 +14,7 @@ const setTokenTemporal = async (id, tokenTemp) => {
 	try {
 		const user = await db.User.findOne({ where: { id: id } })
 		if (!user) throw new Error('El usuario no existe')
-		user.update({ token_temp: tokenTemp })
+		await user.update({ token_temp: tokenTemp })
 		return user
 	} catch (error) {
 		throw error
@@ -61,34 +61,34 @@ const createPersonProcoop = async (dataUpdate, user, dataProcoop, t) => {
 	try {
 		// SE GENERA UN OBJETO DONDE TENGA TODO LOS VALORES DE PROCOOP, PARA QUE EN CASO DE QUE NO EXISTA CREARLO
 		const dataProcoopMember = {
-			procoop_last_name: dataProcoop[0].APELLIDOS,
-			email: dataProcoop[0].EMAIL,
+			procoop_last_name: dataProcoop.APELLIDOS,
+			email: dataProcoop.EMAIL,
 			number_customer: dataUpdate.number_customer,
-			type_person: dataProcoop[0].TIP_PERSO,
-			situation_tax: dataProcoop[0].COD_SIT,
+			type_person: dataProcoop.TIP_PERSO,
+			situation_tax: dataProcoop.COD_SIT,
 			cell_phone: `${dataUpdate.phoneCaract} ${dataUpdate.numberPhone}`,
-			fixed_phone: dataProcoop[0].TELEFONO,
-			type_document: dataProcoop[0].TIP_DNI,
-			number_document: dataProcoop[0].NUM_DNI,
+			fixed_phone: dataProcoop.TELEFONO,
+			type_document: dataProcoop.TIP_DNI,
+			number_document: dataProcoop.NUM_DNI,
 		}
 
 		// SE BUSCA O CREA LA PERSONA CON LOS DATOS DE PROCOOP
-		const [PersonProcoop, createdPersonProcoop] = await db.Person.findOrCreate({ where: { number_document: dataProcoop[0].NUM_DNI }, defaults: { ...dataProcoopMember }, transaction: t })
+		const [PersonProcoop, createdPersonProcoop] = await db.Person.findOrCreate({ where: { number_document: dataProcoop.NUM_DNI }, defaults: { ...dataProcoopMember }, transaction: t })
 		// SI SE CREO, DEBEMOS CREAR LA PERSONA FISICA O LEGAL DE LA PERSONA CREADA DE PROCOOP.
 		if (createdPersonProcoop) {
 			// DEPENDIENDO DEL TIPO DE PERSONA SE GENERA UN OBJETO CON SUS DATOS Y SE GUARDA EL REGISTRO DE ESA PERSONA.
 			// 1 ES PERSONA FISICA, 2 PERSONA LEGAL
-			if (dataProcoop[0].TIP_PERSO === 1) {
+			if (dataProcoop.TIP_PERSO === 1) {
 				const dataPersonPhysicalProcoop = {
 					name: dataUpdate.name_customer,
 					last_name: dataUpdate.last_name_customer,
-					type_dni: dataProcoop[0].TIP_DNI,
-					num_dni: dataProcoop[0].NUM_DNI,
-					born_date: new Date(`${dataProcoop[0].FEC_NAC} `),
-					blood_type: dataProcoop[0].GRU_SGR,
-					factor: dataProcoop[0].FAC_SGR,
-					donor: dataProcoop[0].DAD_SGR,
-					id_type_sex: dataProcoop[0].SEXO === 'M' ? 2 : 1,
+					type_dni: dataProcoop.TIP_DNI,
+					num_dni: dataProcoop.NUM_DNI,
+					born_date: new Date(`${dataProcoop.FEC_NAC} `),
+					blood_type: dataProcoop.GRU_SGR,
+					factor: dataProcoop.FAC_SGR,
+					donor: dataProcoop.DAD_SGR,
+					id_type_sex: dataProcoop.SEXO === 'M' ? 2 : 1,
 					id_person: PersonProcoop.id,
 				}
 				// SE CREA LA PERSONA FISICA DE PERSONA DE PROCOOP
@@ -97,8 +97,8 @@ const createPersonProcoop = async (dataUpdate, user, dataProcoop, t) => {
 				const dataPersonLegalProcoop = {
 					social_raeson: dataUpdate.name_customer,
 					fantasy_name: dataUpdate.last_name_customer,
-					cuit: dataProcoop[0].NUM_DNI,
-					date_registration: new Date(`${dataProcoop[0].FEC_NAC} `),
+					cuit: dataProcoop.NUM_DNI,
+					date_registration: new Date(`${dataProcoop.FEC_NAC} `),
 					id_person: PersonProcoop.id,
 				}
 				// SE CREA LA PERSONA LEGAL DE PERSONA DE PROCOOP
@@ -116,7 +116,7 @@ const createPersonProcoop = async (dataUpdate, user, dataProcoop, t) => {
 		// SE BUSCA Y CREA UN REGISTRO DE USER_PEOPLE SEGUN EL ID DEL USUARIO
 		const [relationProcoop, create] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonProcoop.id }, defaults: { ...relationPersonProcoop }, transaction: t })
 		// EN CASO DE QUE SE ENCUENTRE UN REGISTRO CON ESOS VALORES SE ACTUALIZA EL REGISTRO
-		if (!create) relationProcoop.update(relationPersonProcoop, { transaction: t })
+		if (!create) await relationProcoop.update(relationPersonProcoop, { transaction: t })
 		return PersonProcoop
 	} catch (error) {
 		throw error
@@ -124,15 +124,16 @@ const createPersonProcoop = async (dataUpdate, user, dataProcoop, t) => {
 }
 const updatePersonUserCreated = async (dataUpdate, user, dataPerson, dataProcoop, t) => {
 	try {
+		const procoopmember = dataUpdate.document_number == dataProcoop.NUM_DNI
 		// SE GENERA UIN OBJETO CON LOS DATOS DEL PERFIL DEL USUARIO PARA ACTUALIZAR LA PERSONA QUE SE CREO ANTES YA QUE NO EXISTIA CON ESE DNI
 		const dataPersonUser = {
-			procoop_last_name: dataProcoop[0].APELLIDOS || '',
+			procoop_last_name: procoopmember ? dataProcoop.APELLIDOS : null,
 			email: user.email,
 			number_customer: dataUpdate.number_customer,
 			type_person: user.type_person,
 			cell_phone: `${dataUpdate.phoneCaract} ${dataUpdate.numberPhone}`,
-			fixed_phone: dataProcoop[0].TELEFONO || '',
-			situation_tax: dataProcoop[0].COD_SIT || '',
+			fixed_phone: procoopmember ? dataProcoop.TELEFONO : null,
+			situation_tax: procoopmember ? dataProcoop.COD_SIT : null,
 			type_document: dataUpdate.document_type,
 			number_document: dataUpdate.document_number,
 		}
@@ -166,7 +167,7 @@ const updatePersonUserCreated = async (dataUpdate, user, dataPerson, dataProcoop
 		const userData = await db.User.findOne({ where: { id: user.id }, transaction: t })
 		// SI NO EXISTE SE DEVUELVE UN ERROR
 		if (!userData) throw new Error('No se encontro usuario con ese id')
-		userData.update({ id_person: PersonUser.id }, { transaction: t })
+		await userData.update({ id_person_profile: PersonUser.id }, { transaction: t })
 		return PersonUser
 	} catch (error) {
 		throw error
@@ -174,15 +175,15 @@ const updatePersonUserCreated = async (dataUpdate, user, dataPerson, dataProcoop
 }
 const createAddressUser = async (dataUpdate, PersonData, t) => {
 	try {
-		const city = await db.City.findOne({ where: { cod_loc: dataUpdate.CityId } }, { transaction: t })
-		const state = await db.State.findOne({ where: { cod_pro: dataUpdate.StateId } }, { transaction: t })
+		const city = await db.City.findOne({ where: { cod_loc: dataUpdate.id_city } }, { transaction: t })
+		const state = await db.State.findOne({ where: { cod_pro: dataUpdate.id_state } }, { transaction: t })
 		const address = {
 			number_address: dataUpdate.number_address,
 			floor: dataUpdate.floor || null,
 			dpto: dataUpdate.dpto || null,
 			postal_code: dataUpdate.postal_code || null,
 			google_address: dataUpdate.google_address || null,
-			id_street: dataUpdate.StreetId,
+			id_street: dataUpdate.id_street,
 			id_city: city.id,
 			id_state: state.id,
 		}
@@ -202,10 +203,17 @@ const updateLvl2 = async (user, dataUpdate) => {
 	return db.sequelize.transaction(async (t) => {
 		try {
 			// SE BUSCA EL SOCIO QUE SELECCIONO EL USUARIO PARA SUBIR DE NIVEL, SE OBTIENE EL DNI Y SE CONTROLA QUE NO EXISTA.
-			const dataProcoop = await Persona_x_COD_SOC(dataUpdate.number_customer)
-			if (!dataProcoop.length) throw new Error('El numero de socio no es correcto')
+			const datoUser = await Persona_x_COD_SOC(dataUpdate.number_customer)
+			let dataProcoop
+			if (datoUser.length) {
+				dataProcoop = datoUser[0]
+			} else {
+				dataProcoop = datoUser
+			}
+			if (!dataProcoop) throw new Error('El numero de socio no es correcto')
+			const nombre = dataProcoop?.APELLIDOS ? dataProcoop.APELLIDOS : dataProcoop.procoop_last_name ? dataProcoop.procoop_last_name : ''
 			const dataPersonUser = {
-				procoop_last_name: dataProcoop[0].APELLIDOS || '',
+				procoop_last_name: nombre,
 				email: user.email,
 				number_customer: dataUpdate.number_customer,
 				type_person: user.type_person,
@@ -213,13 +221,15 @@ const updateLvl2 = async (user, dataUpdate) => {
 				type_document: parseInt(dataUpdate.document_type),
 				number_document: dataUpdate.document_number,
 			}
+			// }
 			// SE BUSCA O CREA EL REGISTO CON EL DNI DEL PERFIL DEL USUARIO
+
 			const [dataPerson, createdPerson] = await db.Person.findOrCreate({ where: { number_document: dataUpdate.document_number }, defaults: { ...dataPersonUser }, transaction: t })
 			// EN CASO DE QUE SE CREO UN NUEVO REGISTRO
 			if (createdPerson) {
 				// SE VALIDA QUE LOS DNI DE PROCOOP Y EL QUE INGRESO EL USUARIO NO SEAN IGUALES
 				// EN CASO DE QUE SEAN DIFERENTE SE DEBEN GENERAR 2 REGISTROS 1 PARA LA PERSONA DE PROCOOP Y  PARA EL PERFIL DEL USUARIO
-				if (dataProcoop[0].NUM_DNI !== dataUpdate.number_document) {
+				if (dataProcoop.NUM_DNI !== dataUpdate.number_document) {
 					// FUNCION QUE CREA LA PERSONA, PERSONA FISICA/LEGAL DE PROCOOP
 					await createPersonProcoop(dataUpdate, user, dataProcoop, t)
 					const PersonUser = await updatePersonUserCreated(dataUpdate, user, dataPerson, dataProcoop, t)
@@ -235,9 +245,9 @@ const updateLvl2 = async (user, dataUpdate) => {
 						primary_account: true,
 						status: true,
 					}
-					const [relationProcoop, create] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonUser.id }, defaults: { ...relationPerson }, transaction: t })
+					const [relationProcoop, createRelation] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonUser.id }, defaults: { ...relationPerson }, transaction: t })
 					// EN CASO DE QUE SE ENCUENTRE UN REGISTRO CON ESOS VALORES SE ACTUALIZA EL REGISTRO
-					if (!create) relationProcoop.update(relationPerson, { transaction: t })
+					if (!createRelation) await relationProcoop.update(relationPerson, { transaction: t })
 					await createAddressUser(dataUpdate, PersonUser, t)
 				}
 			} else {
@@ -250,9 +260,9 @@ const updateLvl2 = async (user, dataUpdate) => {
 					primary_account: true,
 					status: true,
 				}
-				const [relationProcoop, create] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonUser.id }, defaults: { ...relationPerson }, transaction: t })
+				const [relationProcoop, createRelation] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonUser.id }, defaults: { ...relationPerson }, transaction: t })
 				// EN CASO DE QUE SE ENCUENTRE UN REGISTRO CON ESOS VALORES SE ACTUALIZA EL REGISTRO
-				if (!create) relationProcoop.update(relationPerson, { transaction: t })
+				if (!createRelation) await relationProcoop.update(relationPerson, { transaction: t })
 				await createAddressUser(dataUpdate, PersonUser, t)
 			}
 			return dataPerson

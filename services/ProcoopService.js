@@ -66,7 +66,7 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
 	try {
 		if (!numberCustomer) throw new Error('falta pasar el numero de socio')
 		const user = await db.Person.findOne({ where: { number_customer: numberCustomer }, include: [{ association: 'Person_physical' }, { association: 'Person_legal' }] })
-		if (user) return user
+		if (user) return user.get()
 		const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
 		const result = await SequelizeMorteros.query(query, {
 			replacements: { numberCustomer: numberCustomer },

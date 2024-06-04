@@ -6,6 +6,7 @@ const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress } = require('../controllers/Location.controller')
 const { customerServicesDetail } = require('../controllers/Services.controller')
+const { addCommentary } = require('../controllers/Managment.controller')
 const { newRequestService, getRequestsByUser } = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber } = require('../controllers/Person.controller')
 
@@ -56,5 +57,7 @@ router.post('/getRequestsByUser', verifyToken, getRequestsByUser)
 
 // Funciones de Peoples
 router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
+
+router.post('/addCommentary', verifyToken, addCommentary)
 
 module.exports = router

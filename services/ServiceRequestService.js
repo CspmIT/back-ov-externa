@@ -43,4 +43,53 @@ const getRequestServiceByUser = async (userID) => {
 	return requests
 }
 
-module.exports = { createRequestService, getRequestServiceByUser }
+const updateRequestService = async (data) => {
+	const t = await db.sequelize.transaction()
+	try {
+		const { serviceRequest, person, ServiceItems } = data
+		if (serviceRequest) {
+			await db.Service_Request.update(serviceRequest, { where: { id: serviceRequest.id }, transaction: t })
+		}
+		if (person) {
+			const people = {
+				id: person.id,
+				procoop_last_name: person.procoop_last_name,
+				email: person.email,
+				number_customer: person.number_customer,
+				type_person: person.type_person,
+				situation_tax: person.situation_tax,
+				fixed_phone: ``,
+			}
+			await db.People.update(person, { where: { id: person.id }, transaction: t })
+		}
+		await t.commit()
+		return requestService
+	} catch (error) {
+		await t.rollback()
+		throw error
+	}
+}
+
+const getRequestServiceData = async (requestID) => {
+	const request = await db.Service_Request.findByPk(requestID, {
+		include: [
+			{
+				association: 'ServiceItems',
+			},
+			{
+				association: 'People',
+				include: [
+					{
+						association: 'Person_physical',
+					},
+					{
+						association: 'Person_legal',
+					},
+				],
+			},
+		],
+	})
+
+	return request
+}
+module.exports = { createRequestService, getRequestServiceByUser, updateRequestService, getRequestServiceData }

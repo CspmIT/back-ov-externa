@@ -6,8 +6,8 @@ const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress } = require('../controllers/Location.controller')
 const { customerServicesDetail } = require('../controllers/Services.controller')
-const { newRequestService, getRequestsByUser } = require('../controllers/RequestService.controller')
-const { peopleByDocumentNumber } = require('../controllers/Person.controller')
+const { newRequestService, getRequestsByUser, updateServiceRequest, getRequestsData, getFormService } = require('../controllers/RequestService.controller')
+const { peopleByDocumentNumber, createOrUpdatePeople } = require('../controllers/Person.controller')
 
 router.get('/test', (req, res) => {
 	res.json({ message: 'Test route' })
@@ -53,7 +53,10 @@ router.get('/searchUserxNumCustomer', verifyToken, searchUserxNumCustomer)
 // FUNCIONES PARA SOLICITUD DE SERVICIOS
 router.post('/createRequestService', verifyToken, newRequestService)
 router.post('/getRequestsByUser', verifyToken, getRequestsByUser)
-
+router.post('/createOrUpdatePeople', verifyToken, createOrUpdatePeople)
+router.post('/updateServiceRequest', verifyToken, updateServiceRequest)
+router.post('/getRequestsData', verifyToken, getRequestsData)
+router.post('/getFormService', verifyToken, getFormService)
 // Funciones de Peoples
 router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
 

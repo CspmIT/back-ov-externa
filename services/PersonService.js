@@ -29,6 +29,18 @@ const getPeopleByNumberDocument = async (number_document, type_person) => {
 	}
 }
 
+const newOrUpdatePeople = async (people, person) => {
+	const t = await db.sequelize.transaction()
+
+	try {
+		// Creo o actualizo la persona
+	} catch (error) {
+		await t.rollback()
+		throw error
+	}
+}
+
 module.exports = {
 	getPeopleByNumberDocument,
+	newOrUpdatePeople,
 }

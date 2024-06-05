@@ -2,14 +2,14 @@ const axios = require('axios')
 const { Register, PasswordRecovery } = require('../utils/email/registerEmail')
 const { db } = require('../models')
 async function sendEmail(data, url) {
-	const html = Register({ name: `${data.name_register} ${data.lastName_register}`, link: url })
+	const html = Register({ name: `${data.name_register} ${data.last_name_register}`, link: url })
 	await axios
 		.post(
 			'https://api-dmds-morteros.planisys.net/v1/envio/send_one_inline/',
 			{
 				campana_id: 14,
 				email: true,
-				contacto: { email: data.email, nombre: data.name, apellido: data.last_name },
+				contacto: { email: data.email, nombre: data.name_register, apellido: data.last_name_register },
 				html: html,
 			},
 			{

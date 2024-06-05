@@ -16,7 +16,7 @@ module.exports = {
 				type: Sequelize.STRING,
 			},
 			cuit: {
-				type: Sequelize.INTEGER,
+				type: Sequelize.BIGINT,
 			},
 			date_registration: {
 				type: Sequelize.DATE,

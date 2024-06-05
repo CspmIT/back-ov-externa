@@ -136,7 +136,7 @@ async function getDataServiceGral(req) {
 				account: services[i].COD_SUM,
 				service: typeService,
 				address: `${services[i].CALLECUENTA} ${parseInt(services[i].ALTURACALLECUENTA)}`,
-				nameCustomer: customer[0].APELLIDOS,
+				nameCustomer: customer[0]?.APELLIDOS ? customer[0].APELLIDOS : customer.procoop_last_name,
 				titleService: services[i].DES_SER,
 				category: services[i].NOMBRE_CATEGORIA,
 				detail: services[i]['NUM_MED/NUMTEL'] ? (typeService === 'TELEFONO' ? 'TEL ' : 'MEDIDOR Nº ') + services[i]['NUM_MED/NUMTEL'] : '',

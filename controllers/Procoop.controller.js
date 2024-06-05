@@ -1,8 +1,8 @@
 const City = require('../models/city.js')
 const { db } = require('../models/index.js')
 const State = require('../models/state.js')
-const { ListCityProcoop, ListStateProcoop, empresaPorCuit, personaPorDni, Persona_x_COD_SOC, getOrCreateUser_ProcoopMember, getOrCreateProcoopMember } = require('../services/ProcoopService.js')
-const { updatePrimaryAccountUserProcoop, deleteUserPersonMember } = require('../services/UserService.js')
+const { ListCityProcoop, ListStateProcoop, empresaPorCuit, personaPorDni, Persona_x_COD_SOC, getOrCreateUser_ProcoopMember, getOrCreateProcoopMember, ListStreetProcoop } = require('../services/ProcoopService.js')
+const { updatePrimaryAccountUserProcoop, deleteUserPerson } = require('../services/UserService.js')
 const { addStreet } = require('../services/locationServices.js')
 
 async function searchByDNI(req, res) {
@@ -25,6 +25,14 @@ async function searchByCuit(req, res) {
 	}
 }
 
+async function getAllStreet(req, res) {
+	try {
+		const listCities = await ListStreetProcoop()
+		return res.status(200).json(listCities)
+	} catch (error) {
+		return res.json({ error, msj: 'error' })
+	}
+}
 async function migrationCity(req, res) {
 	try {
 		const listCities = await ListCityProcoop()
@@ -69,28 +77,17 @@ async function getNameCustomer(req, res) {
 }
 async function addUserPersonMember(req, res) {
 	try {
-		const { customer } = req.body
-		const { id } = req.user
-		const ProcoopMember = await getOrCreateProcoopMember(customer, req.user)
-		const relationUserProcoopMember = await getOrCreateUser_ProcoopMember(ProcoopMember.id, id)
-		const dataResult = {
-			id_relation: relationUserProcoopMember.id,
-			name: ProcoopMember.last_name,
-			num: ProcoopMember.number_customer,
-			primary: relationUserProcoopMember.primary_account,
-			level: relationUserProcoopMember.level,
-		}
-		return res.status(200).json(dataResult)
+		const Person = await getOrCreateProcoopMember(req.body, req.user)
+		return res.status(200).json(Person)
 	} catch (error) {
 		return res.status(404).json({ message: error.message })
 	}
-	// Persona_x_COD_SOC
 }
 async function removeUserPersonMember(req, res) {
 	try {
 		const { id_relation } = req.query
-		const relationUserProcoopMember = await deleteUserPersonMember(id_relation)
-		return res.status(200).json(relationUserProcoopMember)
+		const relationUserPerson = await deleteUserPerson(id_relation)
+		return res.status(200).json(relationUserPerson)
 	} catch (error) {
 		return res.status(404).json({ message: error.message })
 	}
@@ -109,6 +106,7 @@ async function changePrimaryAccountUserProcoop(req, res) {
 module.exports = {
 	searchByCuit,
 	searchByDNI,
+	getAllStreet,
 	migrationCity,
 	migrationState,
 	getNameCustomer,

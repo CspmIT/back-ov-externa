@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 			// define association here
 			User.hasMany(models.User_People, { foreignKey: 'id_user' })
 			User.hasMany(models.Service_Request, { foreignKey: 'id_user' })
-			this.belongsTo(models.Person, { foreignKey: 'id_person_profile', targetKey: 'id' })
+			this.belongsTo(models.Person, { foreignKey: 'id_person_profile', targetKey: 'id', as: 'PersonData' })
 			this.hasMany(models.Commentary, { as: 'Commentaries', foreignKey: 'id_user' })
 		}
 	}

@@ -88,6 +88,22 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
 	}
 }
 
+const ListStreetProcoop = async () => {
+	try {
+		const query = `SELECT * FROM calles`
+		const result = await SequelizeMorteros.query(query, {
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		if (result.length === 0) {
+			// Retorno un objeto con un mensaje de error
+			return { error: 'No se encontró la ciudad' }
+		}
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
 const ListCityProcoop = async () => {
 	try {
 		const query = `SELECT * FROM localida`
@@ -242,41 +258,105 @@ const getProcoopMemberxDni = async (dni) => {
 		throw error
 	}
 }
-/**
- * Busca o crea un miembro de Procoop basado en el número de cliente.
- * Si el miembro no existe, lo crea y sincroniza los datos con la base de datos.
- *
- * @param {string} num_Customer - El número de identificación del cliente.
- * @returns {Promise<Object>} Un objeto que representa al miembro de Procoop.
- *                            Si se crea un nuevo miembro, se actualiza con información adicional.
- *                            En caso de error, devuelve un objeto con la propiedad 'error'.
- */
-const getOrCreateProcoopMember = async (num_Customer, user) => {
+
+const getOrCreateProcoopMember = async (body, user) => {
 	return db.sequelize.transaction(async (t) => {
 		try {
-			const [user_procoop, created] = await db.Person.findOrCreate({ where: { number_customer: num_Customer }, default: { number_customer: num_Customer }, transaction: t })
-			if (created) {
-				const dataProcoop = await Persona_x_COD_SOC(num_Customer)
-				// createPersonProcoop(dataUpdate, user, dataProcoop, t)
+			const { name_customer, last_name_customer, num_customer } = body
+			let PersonProcoop = await db.Person.findOne({ where: { number_customer: num_customer }, transaction: t })
+			if (!PersonProcoop) {
+				const datoUser = await Persona_x_COD_SOC(num_customer)
+				if (!datoUser) throw new Error('El numero de socio no es correcto')
+				let dataProcoop = datoUser[0]
+				// SE GENERA UN OBJETO DONDE TENGA TODO LOS VALORES DE PROCOOP, PARA QUE EN CASO DE QUE NO EXISTA CREARLO
 				const dataProcoopMember = {
-					number_customer: num_Customer,
-					mail_procoop: dataProcoop[0].EMAIL,
-					cell_phone: dataProcoop[0].TELEFONO,
-					fixed_phone: dataProcoop[0].TELEFONO,
-					id_type_procoop: dataProcoop[0].TIP_PERSO,
-					id_situation_procoop: dataProcoop[0].COD_SIT,
-					blood_type: dataProcoop[0].GRU_SGR,
-					factor: dataProcoop[0].FAC_SGR,
-					donor: dataProcoop[0].DAD_SGR,
-					name: dataProcoop[0].NOMBRES,
-					last_name: dataProcoop[0].APELLIDOS,
-					type_dni: dataProcoop[0].TIP_DNI,
-					num_dni: dataProcoop[0].NUM_DNI,
-					born_date: new Date(`${dataProcoop[0].FEC_NAC} `),
+					procoop_last_name: dataProcoop.APELLIDOS,
+					email: dataProcoop.EMAIL,
+					number_customer: num_customer,
+					type_person: dataProcoop.TIP_PERSO,
+					situation_tax: dataProcoop.COD_SIT,
+					fixed_phone: dataProcoop.TELEFONO,
+					type_document: dataProcoop.TIP_DNI,
+					number_document: dataProcoop.NUM_DNI,
 				}
-				await user_procoop.update(dataProcoopMember, { transaction: t })
+
+				// SE CREA LA PERSONA CON LOS DATOS DE PROCOOP
+				const [PersonProcoopControl, createdPerson] = await db.Person.findOrCreate({ where: { number_document: dataProcoop.NUM_DNI }, defaults: { ...dataProcoopMember }, transaction: t })
+				if (!createdPerson) {
+					const dataUpdatePerson = {
+						procoop_last_name: dataProcoop.APELLIDOS,
+						number_customer: num_customer,
+						situation_tax: dataProcoop.COD_SIT,
+						fixed_phone: dataProcoop.TELEFONO,
+					}
+					await PersonProcoopControl.update(dataUpdatePerson, { transaction: t })
+				}
+				// DEPENDIENDO DEL TIPO DE PERSONA SE GENERA UN OBJETO CON SUS DATOS Y SE GUARDA EL REGISTRO DE ESA PERSONA.
+				// 1 ES PERSONA FISICA, 2 PERSONA LEGAL
+				if (dataProcoop.TIP_PERSO === 1) {
+					const dataPersonPhysicalProcoop = {
+						name: name_customer,
+						last_name: last_name_customer,
+						type_dni: dataProcoop.TIP_DNI,
+						num_dni: dataProcoop.NUM_DNI,
+						born_date: new Date(`${dataProcoop.FEC_NAC} `),
+						blood_type: dataProcoop.GRU_SGR,
+						factor: dataProcoop.FAC_SGR,
+						donor: dataProcoop.DAD_SGR,
+						id_type_sex: dataProcoop.SEXO === 'M' ? 2 : 1,
+						id_person: PersonProcoopControl.id,
+					}
+					// SE CREA LA PERSONA FISICA DE PERSONA DE PROCOOP
+					const [dataPersonPhysical, createdPhysical] = await db.Person_physical.findOrCreate({ where: { num_dni: dataProcoop.NUM_DNI }, defaults: { ...dataPersonPhysicalProcoop }, transaction: t })
+					if (!createdPhysical) {
+						const dataUpdate = {
+							blood_type: dataPersonPhysical.blood_type || dataPersonPhysicalProcoop.blood_type,
+							factor: dataPersonPhysical.factor || dataPersonPhysicalProcoop.factor,
+							donor: dataPersonPhysical.id_type_sex || dataPersonPhysicalProcoop.id_type_sex,
+						}
+						await dataPersonPhysical.update(dataUpdate, { transaction: t })
+					}
+				} else {
+					const dataPersonLegalProcoop = {
+						social_raeson: name_customer,
+						fantasy_name: last_name_customer,
+						cuit: dataProcoop.NUM_DNI,
+						date_registration: new Date(`${dataProcoop.FEC_NAC} `),
+						id_person: PersonProcoopControl.id,
+					}
+					// SE CREA LA PERSONA LEGAL DE PERSONA DE PROCOOP
+					const [dataPersonLegal, createdLegal] = await db.Person_legal.findOrCreate({ where: { cuit: dataPersonLegalProcoop.cuit }, defaults: { ...dataPersonLegalProcoop }, transaction: t })
+					if (!createdLegal) {
+						const dataUpdate = {
+							social_raeson: dataPersonLegal.social_raeson || dataPersonLegalProcoop.social_raeson,
+							fantasy_name: dataPersonLegal.fantasy_name || dataPersonLegalProcoop.fantasy_name,
+						}
+						await dataPersonLegal.update(dataUpdate, { transaction: t })
+					}
+				}
+				PersonProcoop = PersonProcoopControl
 			}
-			return user_procoop
+			// SE CREA UN OBJETO PARA LA RELACION DE PERSON Y USER EN LA TABLA DE USER_PEOPLE
+			const relationPersonProcoop = {
+				id_person: PersonProcoop.id,
+				id_user: user.id,
+				level: 2,
+				primary_account: false,
+				status: true,
+			}
+			// SE BUSCA Y CREA UN REGISTRO DE USER_PEOPLE SEGUN EL ID DEL USUARIO
+			const [relationProcoop, create] = await db.User_People.findOrCreate({ where: { id_user: user.id, id_person: PersonProcoop.id }, defaults: { ...relationPersonProcoop }, transaction: t })
+			// EN CASO DE QUE SE ENCUENTRE UN REGISTRO CON ESOS VALORES SE ACTUALIZA EL REGISTRO
+			if (!create) await relationProcoop.update(relationPersonProcoop, { transaction: t })
+
+			const dataResult = {
+				id_relation: relationProcoop.id,
+				name: PersonProcoop.procoop_last_name,
+				num: PersonProcoop.number_customer,
+				primary: relationProcoop.primary_account,
+				level: relationProcoop.level,
+			}
+			return dataResult
 		} catch (error) {
 			throw error
 		}
@@ -332,6 +412,7 @@ module.exports = {
 	conexionProcoop,
 	invoicesXsocio,
 	Persona_x_COD_SOC,
+	ListStreetProcoop,
 	ListCityProcoop,
 	ListStateProcoop,
 	serviceCustomer,

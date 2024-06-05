@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Commentary',
+			tableName: 'Commentaries',
 		}
 	)
 	return Commentary

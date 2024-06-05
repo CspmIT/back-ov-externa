@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const { getNameCustomer, searchByCuit, searchByDNI, addUserPersonMember, removeUserPersonMember, changePrimaryAccountUserProcoop } = require('../controllers/Procoop.controller')
-const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer } = require('../controllers/User.controller')
+const { getNameCustomer, searchByCuit, searchByDNI, addUserPersonMember, removeUserPersonMember, changePrimaryAccountUserProcoop, getAllStreet } = require('../controllers/Procoop.controller')
+const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer, dataUserProfile, updateProfile, updatePhotoProfile } = require('../controllers/User.controller')
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
-const { getListState, getListCity, getListStreet, newStreet, getAddress } = require('../controllers/Location.controller')
+const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
 const { customerServicesDetail } = require('../controllers/Services.controller')
+const { addCommentary } = require('../controllers/Managment.controller')
 const { newRequestService, getRequestsByUser, updateServiceRequest, getRequestsData, getFormService } = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber, createOrUpdatePeople } = require('../controllers/Person.controller')
 
@@ -20,12 +21,15 @@ router.post('/searchDni', verifyToken, searchByDNI)
 router.post('/searchCuit', verifyToken, searchByCuit)
 // router.get('/users', migrationUser)
 router.get('/dataUser', verifyToken, dataUser)
+router.get('/dataUserProfile', verifyToken, dataUserProfile)
 // router.get('/localidad', migrationCity)
 // router.get('/provincia', migrationState)
 
 //funciones generales del usuario
 router.post('/getCustomer', verifyToken, getNameCustomer)
 router.patch('/upgradeLevelUser', verifyToken, upgradeUser)
+router.patch('/updateProfile', verifyToken, updateProfile)
+router.patch('/updatePhotoProfile', verifyToken, updatePhotoProfile)
 router.patch('/updateUser', verifyToken, updateUser)
 router.patch('/updatePassword', verifyToken, updateUser)
 
@@ -40,7 +44,9 @@ router.patch('/chagePrimayMember', verifyToken, changePrimaryAccountUserProcoop)
 router.get('/listState', verifyToken, getListState)
 router.get('/listCity', verifyToken, getListCity)
 router.get('/listStreet', verifyToken, getListStreet)
-router.post('/addStreet', verifyToken, newStreet)
+router.get('/allStreet', verifyToken, getAllStreet)
+router.post('/addStreetApi', verifyToken, newStreetAPi)
+router.post('/addStreetProcoop', verifyToken, newStreetProcoop)
 router.post('/getAddress', verifyToken, getAddress)
 
 //Funciones de servicios
@@ -59,5 +65,7 @@ router.post('/getRequestsData', verifyToken, getRequestsData)
 router.post('/getFormService', verifyToken, getFormService)
 // Funciones de Peoples
 router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
+
+router.post('/addCommentary', verifyToken, addCommentary)
 
 module.exports = router

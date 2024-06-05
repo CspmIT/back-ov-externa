@@ -9,14 +9,14 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			// define association here
-			this.belongsTo(models.Person, { foreignKey: 'id_person', targetKey: 'id' })
+			this.belongsTo(models.Person, { foreignKey: 'id_person', targetKey: 'id', as: 'dataPerson' })
 		}
 	}
 	Person_legal.init(
 		{
 			social_raeson: DataTypes.STRING,
 			fantasy_name: DataTypes.STRING,
-			cuit: DataTypes.INTEGER,
+			cuit: DataTypes.BIGINT,
 			date_registration: DataTypes.DATE,
 			authorization_img: DataTypes.STRING,
 			id_person: DataTypes.INTEGER,

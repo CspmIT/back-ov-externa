@@ -6,7 +6,7 @@ const { login, testConect, register, verifyRegister, password_recover } = requir
 const { customerServices, customerConsumption } = require('../controllers/Services.controller')
 const { getInvoice, existInvoice } = require('../controllers/Payment.controller')
 const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
-const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations } = require('../controllers/Managment.controller')
+const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
 
 // RUTAS PARA AUTH
 
@@ -39,6 +39,8 @@ router.get('/getPopups', Popups)
 router.post('/addPopup', addPopup)
 router.post('/addInformation', addInformation)
 router.get('/informations', Informations)
+router.post('/addImageInformation', addImageInformation)
+router.get('/imageInformations', ImageInformations)
 router.get('/getUsersRegistered', usersRegistered)
 
 module.exports = router

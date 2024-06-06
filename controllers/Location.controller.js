@@ -1,4 +1,4 @@
-const { listState, listCity, listStreetsByCity, addStreet, searchAddress } = require('../services/locationServices')
+const { listState, listCity, listStreetsByCity, addStreet, searchAddress, addStreetAPi, addStreetProcoop } = require('../services/locationServices')
 
 async function getListState(req, res) {
 	try {
@@ -26,9 +26,17 @@ async function getListStreet(req, res) {
 		res.status(400).json({ message: error.message })
 	}
 }
-async function newStreet(req, res) {
+async function newStreetAPi(req, res) {
 	try {
-		const result = await addStreet(req.body)
+		const result = await addStreetAPi(req.body)
+		return res.status(200).json(result)
+	} catch (error) {
+		res.status(400).json({ message: error.message })
+	}
+}
+async function newStreetProcoop(req, res) {
+	try {
+		const result = await addStreetProcoop(req.body)
 		return res.status(200).json(result)
 	} catch (error) {
 		res.status(400).json({ message: error.message })
@@ -43,4 +51,4 @@ async function getAddress(req, res) {
 		res.status(400).json({ message: error.message })
 	}
 }
-module.exports = { getListState, getListCity, getListStreet, newStreet, getAddress }
+module.exports = { getListState, getListCity, getListStreet, newStreetProcoop, newStreetAPi, getAddress }

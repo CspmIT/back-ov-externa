@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
 	class Address extends Model {
 		static associate(models) {
 			this.belongsTo(models.City, { foreignKey: 'id_city', targetKey: 'id', as: 'city' })
-			this.belongsTo(models.State, { foreignKey: 'id_state', targetKey: 'id', as: 'state' })
+			this.belongsTo(models.State, { foreignKey: 'id_state', targetKey: 'cod_pro', as: 'state' })
 			this.belongsTo(models.Street, { foreignKey: 'id_street', as: 'street' })
 			this.hasMany(models.Person_Address, { foreignKey: 'id_address', as: 'Person_Addresses' })
 		}

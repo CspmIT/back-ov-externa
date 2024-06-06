@@ -10,7 +10,7 @@ const listState = async () => {
 }
 const listCity = async (id) => {
 	try {
-		const data = await db.City.findAll({ where: { COD_PCI: id } })
+		const data = await db.City.findAll({ where: { cod_pci: id } })
 		return data
 	} catch (error) {
 		return { error: error.message }
@@ -34,7 +34,7 @@ const listCity = async (id) => {
  *
  * La función maneja errores internos y devuelve un objeto de error si ocurre alguno.
  */
-const addStreet = async (data) => {
+const addStreetAPi = async (data) => {
 	return db.sequelize.transaction(async (t) => {
 		try {
 			const { id_api, idCity, name } = data
@@ -59,6 +59,39 @@ const addStreet = async (data) => {
 			} else {
 				const newStreet = await db.Street.create({ name: name, id_api: parseInt(id_api), id_procoop: null }, { transaction: t })
 				return await db.Street_City.create({ status: true, id_street: parseInt(newStreet.id), id_city: parseInt(idCity) }, { transaction: t })
+			}
+		} catch (error) {
+			return { error: error.message }
+		}
+	})
+}
+const addStreetProcoop = async (data) => {
+	return db.sequelize.transaction(async (t) => {
+		try {
+			const { id_procoop, id_city, name } = data
+			const existingStreet = await db.Street.findOne(
+				{
+					where: {
+						id_procoop: id_procoop,
+						name: {
+							[Op.like]: `%${name}%`,
+						},
+					},
+				},
+				{ transaction: t }
+			)
+			if (existingStreet) {
+				const existingRelation = await db.Street_City.findOne({ where: { id_city: parseInt(id_city), id_street: parseInt(existingStreet.id) } }, { transaction: t })
+				if (existingRelation) {
+					throw new Error('Esta Calle ya existe en nuestra base de datos')
+				} else {
+					return await db.Street_City.create({ status: true, id_street: parseInt(existingStreet.id), id_city: parseInt(id_city) }, { transaction: t })
+				}
+			} else {
+				console.log('HOlaaaaaa')
+				const newStreet = await db.Street.create({ name: name, id_api: null, id_procoop: parseInt(id_procoop) }, { transaction: t })
+				const relation = await db.Street_City.create({ status: true, id_street: parseInt(newStreet.id), id_city: parseInt(id_city) }, { transaction: t })
+				return relation
 			}
 		} catch (error) {
 			return { error: error.message }
@@ -115,7 +148,6 @@ const searchAddress = async (data) => {
  */
 const searchAddressxUser = async (id_user) => {
 	try {
-		console.log(id_user)
 		const Person_Address = await db.Person_Address.findOne({ where: { [Op.or]: [{ PersonPhysicalId: id_user }, { PersonLegalsId: id_user }] } })
 		if (!Person_Address) {
 			return Person_Address
@@ -147,5 +179,48 @@ const searchAddressxUser = async (id_user) => {
 		return { error: error.message }
 	}
 }
+const saveAdrress = (dataAddress) => {
+	return db.sequelize.transaction(async (t) => {
+		try {
+			const [Address, created] = await db.Address.findOrCreate({
+				where: { id_street: dataAddress.id_street, id_city: dataAddress.id_city, id_state: dataAddress.id_state, number_address: dataAddress.number_address },
+				defaults: { ...dataAddress },
+				transaction: t,
+			})
+			if (!created) {
+				await Address.update(dataAddress, { transaction: t })
+			}
+			return Address
+		} catch (error) {
+			throw error
+		}
+	})
+}
+const savePersonAdrress = (dataRelation) => {
+	return db.sequelize.transaction(async (t) => {
+		try {
+			const [personAddress, created] = await db.Person_Address.findOrCreate({
+				where: { id_person: dataRelation.id_person, id_address: dataRelation.id_address },
+				defaults: { ...dataRelation },
+				transaction: t,
+			})
+			if (!created) {
+				await personAddress.update({ status: 1 })
+			}
+			const addresses = await db.Person_Address.findAll({ where: { id_person: dataRelation.id_person } })
+			// Actualizamos el estado de todas las demás direcciones asociadas a la persona
+			const updatePromises = addresses.map((element) => {
+				if (element.dataValues.id !== personAddress.dataValues.id) {
+					return db.Person_Address.update({ status: 0 }, { where: { id: element.dataValues.id }, transaction: t })
+				}
+			})
 
-module.exports = { listState, listCity, listStreetsByCity, addStreet, searchAddress, searchAddressxUser }
+			await Promise.all(updatePromises)
+
+			return personAddress
+		} catch (error) {
+			throw error
+		}
+	})
+}
+module.exports = { listState, listCity, listStreetsByCity, addStreetAPi, addStreetProcoop, searchAddress, searchAddressxUser, saveAdrress, savePersonAdrress }

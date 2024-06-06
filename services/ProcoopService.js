@@ -88,6 +88,22 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
 	}
 }
 
+const ListStreetProcoop = async () => {
+	try {
+		const query = `SELECT * FROM calles`
+		const result = await SequelizeMorteros.query(query, {
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		if (result.length === 0) {
+			// Retorno un objeto con un mensaje de error
+			return { error: 'No se encontró la ciudad' }
+		}
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
 const ListCityProcoop = async () => {
 	try {
 		const query = `SELECT * FROM localida`
@@ -396,6 +412,7 @@ module.exports = {
 	conexionProcoop,
 	invoicesXsocio,
 	Persona_x_COD_SOC,
+	ListStreetProcoop,
 	ListCityProcoop,
 	ListStateProcoop,
 	serviceCustomer,

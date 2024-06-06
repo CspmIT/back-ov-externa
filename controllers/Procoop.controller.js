@@ -1,7 +1,7 @@
 const City = require('../models/city.js')
 const { db } = require('../models/index.js')
 const State = require('../models/state.js')
-const { ListCityProcoop, ListStateProcoop, empresaPorCuit, personaPorDni, Persona_x_COD_SOC, getOrCreateUser_ProcoopMember, getOrCreateProcoopMember } = require('../services/ProcoopService.js')
+const { ListCityProcoop, ListStateProcoop, empresaPorCuit, personaPorDni, Persona_x_COD_SOC, getOrCreateUser_ProcoopMember, getOrCreateProcoopMember, ListStreetProcoop } = require('../services/ProcoopService.js')
 const { updatePrimaryAccountUserProcoop, deleteUserPerson } = require('../services/UserService.js')
 const { addStreet } = require('../services/locationServices.js')
 
@@ -25,6 +25,14 @@ async function searchByCuit(req, res) {
 	}
 }
 
+async function getAllStreet(req, res) {
+	try {
+		const listCities = await ListStreetProcoop()
+		return res.status(200).json(listCities)
+	} catch (error) {
+		return res.json({ error, msj: 'error' })
+	}
+}
 async function migrationCity(req, res) {
 	try {
 		const listCities = await ListCityProcoop()
@@ -98,6 +106,7 @@ async function changePrimaryAccountUserProcoop(req, res) {
 module.exports = {
 	searchByCuit,
 	searchByDNI,
+	getAllStreet,
 	migrationCity,
 	migrationState,
 	getNameCustomer,

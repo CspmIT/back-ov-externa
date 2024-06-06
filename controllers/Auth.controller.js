@@ -53,6 +53,8 @@ const register = async (req, res) => {
 		const data = { email, type_person: typePerson, password: pass, name_register: name, token_temp: tokenTemp }
 		if (parseInt(typePerson) === 1) {
 			data.last_name_register = last_name
+		} else {
+			data.last_name_register = ''
 		}
 		const user = await AuthService.registerUser(data, fullUrl)
 		res.status(200).json(user)

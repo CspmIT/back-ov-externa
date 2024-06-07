@@ -1,4 +1,4 @@
-const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation} = require('../services/ManagmentService')
+const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation, getImageInformation, saveImageInformation} = require('../services/ManagmentService')
 
 async function Commentaries(req, res) {
 	try {
@@ -38,7 +38,7 @@ async function addPopup(req, res) {
 async function Popups(req, res) {
 	try {
 		const id = req.query.id || false
-		const popups = await getPopup()
+		const popups = await getPopup(false, id)
 		res.status(200).json(popups)
 	} catch (error) {
 		res.status(400).json(error.message)
@@ -57,12 +57,34 @@ async function addInformation(req, res) {
 
 async function Informations(req, res) {
 	try {
-		const informations = await getInformation()
+		const id = req.query.id || false
+		const informations = await getInformation(id)
 		res.status(200).json(informations)
 	} catch (error) {
 		res.status(400).json(error.message)
 	}
 }
+
+async function addImageInformation(req, res) {
+	try {
+		const Imagesinformations = req.body
+		const newImageInformation = await saveImageInformation(Imagesinformations)
+		res.status(200).json(newImageInformation)
+	} catch (error) {
+		res.status(400).json(error.message)
+	}
+}
+
+async function ImageInformations(req, res) {
+	try {
+		const idInformation = req.query.idInformation || false
+		const Imagesinformations = await getImageInformation(idInformation)
+		res.status(200).json(Imagesinformations)
+	} catch (error) {
+		res.status(400).json(error.message)
+	}
+}
+
 
 module.exports = {
 	Commentaries,
@@ -70,5 +92,7 @@ module.exports = {
 	addPopup,
 	Popups, 
 	Informations, 
-	addInformation
+	addInformation, 
+	ImageInformations,
+	addImageInformation
 }

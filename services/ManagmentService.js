@@ -24,11 +24,12 @@ async function saveCommentary(commentary) {
 
 async function getPopup(body = false, id = false) {
 	const query = {}
-	if (body) {
-		query.where = { level: body.level,   date_out: { '>=': body.date_start}, status: 0}
-	}
 	if (id) {
 		query.where = { id }
+	}else{
+		if (body) {
+			query.where = { level: body.level,   date_out: { '>=': body.date_start}, status: 0}
+		}
 	}
 	return await db.PopUp.findAll(query)
 }
@@ -43,15 +44,37 @@ async function savePopup(popup) {
 	}
 }
 
-async function getInformation() {
-	return await db.Information.findAll()
+async function getInformation(id = false) {
+	const query = {}
+	if (id) {
+		query.where = { id }
+	}
+	return await db.Information.findAll(query)
 }
 
 async function saveInformation(information) {
 	return await db.Information.create(information)
 }
 
+async function getImageInformation(idInformation = false) {
+	const query = {}
+	if (idInformation) {
+		query.where = { id_information: idInformation }
+	}
+	return await db.Image_Information.findAll(query)
+}
+
+async function saveImageInformation(ImageInformation) {
+	return await db.Image_Information.create(ImageInformation)
+}
+
 module.exports = {
 	getCommentaries,
 	saveCommentary,
+	getPopup, 
+	savePopup, 
+	getInformation, 
+	saveInformation,
+	getImageInformation,
+	saveImageInformation
 }

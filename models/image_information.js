@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Image_Information.init({
+    url_image: DataTypes.STRING,
+    id_information: DataTypes.INTEGER,
     status: DataTypes.BOOLEAN
   }, {
     sequelize,

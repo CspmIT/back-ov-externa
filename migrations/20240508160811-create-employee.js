@@ -39,6 +39,10 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
+			profile: {
+				type: Sequelize.INTEGER,
+				comment: '1- moderador, 2-Lector, 3-operador',
+			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,

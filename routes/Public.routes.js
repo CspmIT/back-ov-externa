@@ -7,14 +7,20 @@ const { customerServices, customerConsumption } = require('../controllers/Servic
 const { getInvoice, existInvoice } = require('../controllers/Payment.controller')
 const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
+const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
 
 // RUTAS PARA AUTH
 
+router.post('/generateTokenCooptech', tokenCooptech)
+router.post('/loginCooptech', loginCooptech)
 router.post('/login', login)
 router.post('/register', register)
 router.post('/validationUser', verifyRegister)
 router.post('/password_recover', password_recover)
 router.post('/existToken', tokenVerify)
+
+// RUTAS PARA COOPTECH
+router.post('/relationUserCooptech', relationUserCooptech)
 
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)

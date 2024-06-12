@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
 			img_profile: DataTypes.STRING,
 			type_person: DataTypes.INTEGER,
 			status: DataTypes.INTEGER,
+			token_app: DataTypes.STRING,
 		},
 		{
 			sequelize,

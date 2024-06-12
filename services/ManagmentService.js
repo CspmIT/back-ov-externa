@@ -53,7 +53,13 @@ async function getInformation(id = false) {
 }
 
 async function saveInformation(information) {
-	return await db.Information.create(information)
+	if (information.id) {
+		return await db.Information.update(information, {
+			where: { id: information.id },
+		})
+	} else {
+		return await db.Information.create(information)
+	}
 }
 
 async function getImageInformation(idInformation = false) {

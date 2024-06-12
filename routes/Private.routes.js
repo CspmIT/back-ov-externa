@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { getNameCustomer, searchByCuit, searchByDNI, addUserPersonMember, removeUserPersonMember, changePrimaryAccountUserProcoop, getAllStreet } = require('../controllers/Procoop.controller')
-const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer, dataUserProfile, updateProfile, updatePhotoProfile } = require('../controllers/User.controller')
+const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer, dataUserProfile, updateProfile, updatePhotoProfile, usersRegistered } = require('../controllers/User.controller')
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
@@ -67,5 +67,6 @@ router.post('/getFormService', verifyToken, getFormService)
 router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
 
 router.post('/addCommentary', verifyToken, addCommentary)
+router.get('/getUsersRegistered', verifyToken, usersRegistered)
 
 module.exports = router

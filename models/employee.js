@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 	class Employee extends Model {
 		static associate(models) {
 			// define association here
-			this.belongsTo(models.Person_physical, { foreignKey: 'id_person_pshysical', targetKey: 'id' })
+			this.belongsTo(models.Person_physical, { foreignKey: 'id_person_physical', targetKey: 'id', as: 'personPhysical' })
 		}
 	}
 	Employee.init(
@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
 			docket_status: DataTypes.BOOLEAN,
 			cuil: DataTypes.BIGINT,
 			date_entry: DataTypes.DATE,
-			id_person_pshysical: DataTypes.INTEGER,
+			id_person_physical: DataTypes.INTEGER,
+			profile: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

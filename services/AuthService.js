@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const { sequelizeCoopm_v1 } = require('../database/MySQL.database')
 const { sequelize, SequelizeOncativo } = require('../database/MSSQL.database')
-const { db, db_coopm_v1 } = require('../models')
+const { db, db_coopm_v1, changeSchema } = require('../models')
 const { Sequelize } = require('sequelize')
 const { sendEmail } = require('./EmailServices')
 const { getLevel } = require('./UserService')
@@ -26,7 +26,7 @@ const signToken = (user, remember) => {
 	// Seteo de fecha con 8horas mas para expiracion
 	const dateHour = new Date().setHours(new Date().getHours() + 8)
 	const configSing = {
-		iss: 'oficina',
+		iss: `app-coopm_v2`,
 		sub: user.id,
 		iat: new Date().getTime(),
 		exp: new Date(remember ? dateYear : dateHour).getTime(),
@@ -42,11 +42,11 @@ const signToken = (user, remember) => {
 }
 
 // Funcion para firmar el token para usuario interno
-const signTokenCooptech = (user) => {
+const signTokenCooptech = (user, schemaName) => {
 	// Seteo de fecha con 8horas mas para expiracion
 	const dateHour = new Date().setHours(new Date().getHours() + 8)
 	const configSing = {
-		iss: 'oficina',
+		iss: `app-${schemaName}`,
 		sub: user.id,
 		iat: new Date().getTime(),
 		exp: new Date(dateHour).getTime(),
@@ -60,15 +60,16 @@ const signTokenCooptech = (user) => {
 }
 
 // Funcion para firmar el token para pasar por url para logearse desde cooptech
-const generateTokenCooptech = async (email, tokenCooptech) => {
+const generateTokenCooptech = async (email, tokenCooptech, schemaName) => {
 	// Seteo de fecha con 8horas mas para expiracion
 	const dateHour = new Date().setHours(new Date().getHours() + 1)
 	const configSing = {
-		iss: 'oficina',
+		iss: `app-${schemaName}`,
 		iat: new Date().getTime(),
 		exp: new Date(dateHour).getTime(),
 		email: email,
 		token: tokenCooptech,
+		schemaName,
 	}
 	return jwt.sign(configSing, secret)
 }
@@ -108,8 +109,9 @@ const login = async (email, password, remember) => {
 		throw error
 	}
 }
-const authCooptech = async (email, token) => {
+const authCooptech = async (email, token, schemaName) => {
 	try {
+		await changeSchema(schemaName)
 		const user = await db.User.findOne({ where: { email: email } })
 		if (!user) {
 			throw new Error('El usuario o la contraseña son incorrectas')
@@ -128,7 +130,7 @@ const authCooptech = async (email, token) => {
 			],
 		})
 		user.profile = employee.personPhysical.profile
-		return signTokenCooptech(user)
+		return signTokenCooptech(user, schemaName)
 	} catch (error) {
 		throw error
 	}

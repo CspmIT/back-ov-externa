@@ -1,4 +1,4 @@
-const { db } = require('../models')
+const { db, changeSchema } = require('../models')
 const { formatDate } = require('../utils/date/date')
 const updateEmployed = async (id_person, profile) => {
 	return db.sequelize.transaction(async (t) => {
@@ -19,6 +19,7 @@ const updateEmployed = async (id_person, profile) => {
 	})
 }
 const addUserCooptech = async (data) => {
+	await changeSchema(data.schema_name)
 	return db.sequelize.transaction(async (t) => {
 		try {
 			const dataUser = {

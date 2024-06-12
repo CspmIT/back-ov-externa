@@ -17,8 +17,8 @@ async function relationUserCooptech(req, res) {
 }
 const loginCooptech = async (req, res) => {
 	try {
-		const { email, tokenCooptech } = req.body
-		const token = await authCooptech(email, tokenCooptech)
+		const { email, tokenCooptech, schemaName } = req.body
+		const token = await authCooptech(email, tokenCooptech, schemaName)
 		return res.status(200).json({ token })
 	} catch (error) {
 		if (error.errors) {
@@ -30,8 +30,8 @@ const loginCooptech = async (req, res) => {
 }
 const tokenCooptech = async (req, res) => {
 	try {
-		const { email, tokenCooptech } = req.body
-		const token = await generateTokenCooptech(email, tokenCooptech)
+		const { email, tokenCooptech, schemaName } = req.body
+		const token = await generateTokenCooptech(email, tokenCooptech, schemaName)
 		return res.status(200).json({ token })
 	} catch (error) {
 		if (error.errors) {

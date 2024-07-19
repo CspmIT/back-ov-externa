@@ -1,9 +1,18 @@
-const City = require('../models/city.js')
 const { db } = require('../models/index.js')
-const State = require('../models/state.js')
-const { ListCityProcoop, ListStateProcoop, empresaPorCuit, personaPorDni, Persona_x_COD_SOC, getOrCreateUser_ProcoopMember, getOrCreateProcoopMember, ListStreetProcoop } = require('../services/ProcoopService.js')
+const {
+	ListCityProcoop,
+	ListStateProcoop,
+	empresaPorCuit,
+	personaPorDni,
+	Persona_x_COD_SOC,
+	getOrCreateProcoopMember,
+	ListStreetProcoop,
+	getPriceAndDescTelefonia,
+	getPriceAndDescTV,
+	getPriceAndDescInternet,
+	getSituations,
+} = require('../services/ProcoopService.js')
 const { updatePrimaryAccountUserProcoop, deleteUserPerson } = require('../services/UserService.js')
-const { addStreet } = require('../services/locationServices.js')
 
 async function searchByDNI(req, res) {
 	const { dni } = req.body
@@ -103,6 +112,48 @@ async function changePrimaryAccountUserProcoop(req, res) {
 	}
 }
 
+async function getServicesTelecomunications(req, res) {
+	try {
+		console.log(req.params)
+
+		const { typeUser } = req.params
+		if (typeUser === '1') {
+			const tv = await getPriceAndDescTV()
+			const internet = await getPriceAndDescInternet()
+			const telefonia = await getPriceAndDescTelefonia(1)
+			return res.status(200).json({ tv, internet, telefonia })
+		} else if (typeUser === '2' || typeUser === '5') {
+			const tv = await getPriceAndDescTV()
+			const internet = await getPriceAndDescInternet()
+			const telefonia = await getPriceAndDescTelefonia(2)
+			return res.status(200).json({ tv, internet, telefonia })
+		} else if (typeUser === '3') {
+			const tv = await getPriceAndDescTV(3)
+			const internet = await getPriceAndDescInternet(3)
+			return res.status(200).json({ tv, internet })
+		} else if (typeUser === '4') {
+			const tv = await getPriceAndDescTV()
+			const internet = await getPriceAndDescInternet(4)
+			const telefonia = await getPriceAndDescTelefonia(4)
+			return res.status(200).json({ tv, internet, telefonia })
+		} else {
+			return res.status(400).json({ message: 'El tipo de usuario no es valido' })
+		}
+	} catch (error) {
+		return res.status(404).json({ message: error.message })
+	}
+}
+
+// Obtener las situaciones de iva de procoop
+async function getSituationsIva(req, res) {
+	try {
+		const situations = await getSituations()
+		return res.status(200).json(situations)
+	} catch (error) {
+		return res.status(404).json({ message: error.message })
+	}
+}
+
 module.exports = {
 	searchByCuit,
 	searchByDNI,
@@ -113,4 +164,6 @@ module.exports = {
 	addUserPersonMember,
 	removeUserPersonMember,
 	changePrimaryAccountUserProcoop,
+	getServicesTelecomunications,
+	getSituationsIva,
 }

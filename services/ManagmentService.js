@@ -26,9 +26,9 @@ async function getPopup(body = false, id = false) {
 	const query = {}
 	if (id) {
 		query.where = { id }
-	}else{
+	} else {
 		if (body) {
-			query.where = { level: body.level,   date_out: { '>=': body.date_start}, status: 0}
+			query.where = { level: body.level, date_out: { '>=': body.date_start }, status: 0 }
 		}
 	}
 	return await db.PopUp.findAll(query)
@@ -77,10 +77,10 @@ async function saveImageInformation(ImageInformation) {
 module.exports = {
 	getCommentaries,
 	saveCommentary,
-	getPopup, 
-	savePopup, 
-	getInformation, 
+	getPopup,
+	savePopup,
+	getInformation,
 	saveInformation,
 	getImageInformation,
-	saveImageInformation
+	saveImageInformation,
 }

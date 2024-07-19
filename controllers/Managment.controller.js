@@ -1,4 +1,4 @@
-const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation, getImageInformation, saveImageInformation} = require('../services/ManagmentService')
+const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation, getImageInformation, saveImageInformation } = require('../services/ManagmentService')
 
 async function Commentaries(req, res) {
 	try {
@@ -12,8 +12,8 @@ async function Commentaries(req, res) {
 async function addCommentary(req, res) {
 	try {
 		const commentary = req.body
-		const {id} = req.user;
-		commentary.id_user = id;
+		const { id } = req.user
+		commentary.id_user = id
 		const newCommentary = await saveCommentary(commentary)
 		res.status(200).json(newCommentary)
 	} catch (error) {
@@ -25,7 +25,7 @@ async function addPopup(req, res) {
 	try {
 		const popup = req.body
 		const existePopup = await getPopup(popup)
-		if(existePopup.length > 0){
+		if (existePopup.length > 0) {
 			res.status(200).json(['existeModal'])
 		}
 		const newPopup = await savePopup(popup)
@@ -85,14 +85,13 @@ async function ImageInformations(req, res) {
 	}
 }
 
-
 module.exports = {
 	Commentaries,
 	addCommentary,
 	addPopup,
-	Popups, 
-	Informations, 
-	addInformation, 
+	Popups,
+	Informations,
+	addInformation,
 	ImageInformations,
-	addImageInformation
+	addImageInformation,
 }

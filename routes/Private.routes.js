@@ -1,6 +1,16 @@
 const express = require('express')
 const router = express.Router()
-const { getNameCustomer, searchByCuit, searchByDNI, addUserPersonMember, removeUserPersonMember, changePrimaryAccountUserProcoop, getAllStreet } = require('../controllers/Procoop.controller')
+const {
+	getNameCustomer,
+	searchByCuit,
+	searchByDNI,
+	addUserPersonMember,
+	removeUserPersonMember,
+	changePrimaryAccountUserProcoop,
+	getAllStreet,
+	getServicesTelecomunications,
+	getSituationsIva,
+} = require('../controllers/Procoop.controller')
 const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer, dataUserProfile, updateProfile, updatePhotoProfile, usersRegistered } = require('../controllers/User.controller')
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
@@ -63,6 +73,11 @@ router.post('/createOrUpdatePeople', verifyToken, createOrUpdatePeople)
 router.post('/updateServiceRequest', verifyToken, updateServiceRequest)
 router.post('/getRequestsData', verifyToken, getRequestsData)
 router.post('/getFormService', verifyToken, getFormService)
+
+// Funciones para buscar en procoop
+router.get('/searchServicesTelecomunications/:typeUser', verifyToken, getServicesTelecomunications)
+router.get('/getSituationsIva', verifyToken, getSituationsIva)
+
 // Funciones de Peoples
 router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
 

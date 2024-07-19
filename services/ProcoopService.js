@@ -406,6 +406,106 @@ const allAccount = async (id) => {
 	}
 }
 
+const getPriceAndDescInternet = async (user = false) => {
+	try {
+		let query
+		if (user === 3) {
+			query = `SELECT CS.COD_SER, CS.DES_CAT, CS.COD_CAT, S.DES_SER, CT.DES_CON, CT.PRE_UNI FROM CATE_SER AS CS
+						INNER JOIN SERVICIO AS S
+						ON CS.COD_SER = S.COD_SER 
+						INNER JOIN CATTARIF AS CT
+						ON CT.COD_CATSER = CS.COD_CATSER
+						WHERE S.COD_SER = 9 
+						AND CS.COD_CAT = 149`
+		}
+
+		query = `SELECT CS.COD_SER, CS.DES_CAT, CS.COD_CAT, S.DES_SER, CT.DES_CON, CT.PRE_UNI FROM CATE_SER AS CS
+						INNER JOIN SERVICIO AS S ON CS.COD_SER = S.COD_SER 
+						INNER JOIN CATTARIF AS CT ON CT.COD_CATSER = CS.COD_CATSER
+						WHERE S.COD_SER = 9 
+						AND CS.COD_CAT = 143 
+						OR CS.COD_CAT = 145 
+						OR CS.COD_CAT = 159 ${user === 4 ? 'OR CS.COD_CAT = 123' : ''}`
+		const result = await SequelizeMorteros.query(query, {
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
+const getPriceAndDescTV = async (user = false) => {
+	try {
+		let query
+		if (user === 3) {
+			query = `SELECT CS.COD_SER, CS.DES_CAT, CS.COD_CAT, S.DES_SER, CT.DES_CON, CT.PRE_UNI FROM CATE_SER AS CS
+			INNER JOIN SERVICIO AS S
+			ON CS.COD_SER = S.COD_SER 
+			INNER JOIN CATTARIF AS CT
+			ON CT.COD_CATSER = CS.COD_CATSER
+			WHERE CS.COD_SER = 117 AND CS.COD_CAT = 4
+			OR CS.COD_SER = 84 AND CS.COD_CAT = 1`
+		} else {
+			query = `
+				SELECT CS.COD_SER, CS.DES_CAT, CS.COD_CAT, S.DES_SER, CT.DES_CON, CT.PRE_UNI FROM CATE_SER AS CS
+				INNER JOIN SERVICIO AS S
+				ON CS.COD_SER = S.COD_SER 
+				INNER JOIN CATTARIF AS CT
+				ON CT.COD_CATSER = CS.COD_CATSER
+				WHERE (S.COD_SER = 55 AND CS.COD_CAT = 1) 
+				OR (S.COD_SER = 84 AND CS.COD_CAT = 1) 
+				OR (CS.COD_SER = 59 AND CS.COD_CAT = 1)
+				OR (CS.COD_SER = 117 AND CS.COD_CAT = 2)
+				OR CS.COD_SER = 100 AND CS.COD_CAT = 10`
+		}
+		const result = await SequelizeMorteros.query(query, {
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
+const getPriceAndDescTelefonia = async (user) => {
+	try {
+		let cod_cat
+		if (user === 1) {
+			cod_cat = 1
+		} else if (user === 2) {
+			cod_cat = 3
+		} else if (user === 4) {
+			cod_cat = 4
+		}
+		const query = `SELECT CS.COD_SER, CS.DES_CAT, CS.COD_CAT, S.DES_SER, CT.DES_CON, CT.PRE_UNI FROM CATE_SER AS CS
+				INNER JOIN SERVICIO AS S
+				ON CS.COD_SER = S.COD_SER 
+				INNER JOIN CATTARIF AS CT
+				ON CT.COD_CATSER = CS.COD_CATSER
+				WHERE S.COD_SER = 10 AND CS.COD_CAT = :cod_cat`
+		const result = await SequelizeMorteros.query(query, {
+			replacements: { cod_cat: cod_cat },
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
+const getSituations = async () => {
+	try {
+		const query = `SELECT cod_sit, des_sit, res_sit FROM sitiva where cod_sit not in (2,3)`
+		const result = await SequelizeMorteros.query(query, {
+			type: SequelizeMorteros.QueryTypes.SELECT,
+		})
+		return result
+	} catch (error) {
+		throw error
+	}
+}
+
 module.exports = {
 	personaPorDni,
 	empresaPorCuit,
@@ -425,4 +525,8 @@ module.exports = {
 	allAccount,
 	getOrCreateProcoopMember,
 	getOrCreateUser_ProcoopMember,
+	getPriceAndDescInternet,
+	getPriceAndDescTV,
+	getPriceAndDescTelefonia,
+	getSituations,
 }

@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const { migrationUser, tokenVerify, usersRegistered } = require('../controllers/User.controller')
+const { tokenVerify, usersRegistered } = require('../controllers/User.controller')
 // const { migrator1Up } = require('../controllers/migrations.controller')
 const { login, testConect, register, verifyRegister, password_recover } = require('../controllers/Auth.controller')
 const { customerServices, customerConsumption } = require('../controllers/Services.controller')
 const { getInvoice, existInvoice } = require('../controllers/Payment.controller')
-const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
-const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
+const { searchByDNI, searchByCuit } = require('../controllers/Procoop.controller')
+const { Commentaries, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
 const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
 
 // RUTAS PARA AUTH

@@ -9,9 +9,9 @@
 	},
 	"coopm_v2": {
 		"database": "coopm_v2",
-		"username": "DbDesarrollo",
-		"password": "m+?PvY:zUogF01Q^XH3i9",
-		"host": "localhost",
+		"username": "ovexterna",
+		"password": "fxWZEWePOAGJqz1t4SXHgx06",
+		"host": "192.168.0.100",
 		"port": 3306,
 		"dialect": "mysql",
 		"timezone": "America/Argentina/Buenos_Aires"

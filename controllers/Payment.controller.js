@@ -36,7 +36,7 @@ async function getInvoice(req, res) {
 						invoices[debts[i].COD_SUM].list[j].type = debts[i].TIPO === 'EN' ? `EN-${invoices[debts[i].COD_SUM].list[j].type}` : `${invoices[debts[i].COD_SUM].list[j].type}-${debts[i].TIPO}`
 						invoices[debts[i].COD_SUM].list[j].nrovoucher = voucher
 						invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? `https://facturas.coopmorteros.coop/${pdf}.pdf` : invoices[debts[i].COD_SUM].list[j].url
-						invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? debts[i].ID_FAC : invoices[debts[i].COD_SUM].list[j].url
+						//invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? debts[i].ID_FAC : invoices[debts[i].COD_SUM].list[j].url
 						invoices[debts[i].COD_SUM].list[j].amount = parseFloat(invoices[debts[i].COD_SUM].list[j].amount) + parseFloat(total)
 						//invoices[debts[i].COD_SUM].list[j].amount = parseFloat(parseFloat(invoices[debts[i].COD_SUM].list[j].amount) + parseFloat(total)).toFixed(2)
 						break

@@ -47,17 +47,7 @@ async function Popups(req, res) {
 
 async function activePopups(req, res) {
 	try {
-		const id = req.query.id || false
-		const popups = await getActivePopups()
-		res.status(200).json(popups)
-	} catch (error) {
-		res.status(400).json(error.message)
-	}
-}
-
-async function activePopups(req, res) {
-	try {
-		const id = req.query.id || false
+		// const id = req.query.id || false
 		const popups = await getActivePopups()
 		res.status(200).json(popups)
 	} catch (error) {

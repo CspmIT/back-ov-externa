@@ -13,8 +13,8 @@ app.use(cookieParser())
 // Configuracion para el body parser
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(publicRoutes)
-app.use(privateRoutes)
+app.use('/api', publicRoutes)
+app.use('/api', privateRoutes)
 //Para archivos
 app.use('/images', express.static('images'))
 

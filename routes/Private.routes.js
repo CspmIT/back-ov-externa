@@ -9,6 +9,7 @@ const { customerServicesDetail } = require('../controllers/Services.controller')
 const { addCommentary, activePopups } = require('../controllers/Managment.controller')
 const { newRequestService, getRequestsByUser } = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber } = require('../controllers/Person.controller')
+const { paymentMethods, payLink } = require('../controllers/Payment.controller')
 
 router.get('/test', (req, res) => {
 	res.json({ message: 'Test route' })
@@ -66,5 +67,9 @@ router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber
 
 router.post('/addCommentary', verifyToken, addCommentary)
 router.get('/getUsersRegistered', verifyToken, usersRegistered)
+
+//METODOS DE PAGO
+router.get('/payMethods', verifyToken, paymentMethods)
+router.post('/payLink', verifyToken, payLink)
 
 module.exports = router

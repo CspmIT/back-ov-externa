@@ -65,6 +65,6 @@ jobs:
           run: | 
             REPO_NAME=$(echo ${{ github.repository }} | cut -d'/' -f2)
             docker build \
-              --build-arg = ${{ secrets.SECRET }} \
+              --build-arg ${{ secrets.SECRET }} \
               -t ${{ secrets.DOCKER_USER_NAME }}/${REPO_NAME}:${{ needs.bump.outputs.new_tag }} .
             docker push ${{ secrets.DOCKER_USER_NAME }}/${REPO_NAME}:${{ needs.bump.outputs.new_tag }}

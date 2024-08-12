@@ -4,7 +4,7 @@
 		"database": "coopm_v1",
 		"username": "DbDesarrollo",
 		"password": "m+?PvY:zUogF01Q^XH3i9",
-		"host": "localhost",
+		"host": "168.196.255.86",
 		"port": 3306,
 		"dialect": "mysql"
 	},
@@ -12,7 +12,7 @@
 		"database": "coopm_v2",
 		"username": "DbDesarrollo",
 		"password": "m+?PvY:zUogF01Q^XH3i9",
-		"host": "localhost",
+		"host": "168.196.255.86",
 		"port": 3306,
 		"dialect": "mysql",
 		"timezone": "America/Argentina/Buenos_Aires"

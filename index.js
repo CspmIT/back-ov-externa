@@ -1,15 +1,26 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const authRoutes = require('./routes/Auth.routes') // Importa tus rutas de autenticación
-const appConf = require('./config/app.conf')
-const appRputes = require('./routes/App.routes')
+const cookieParser = require('cookie-parser')
+// Rutas
+const publicRoutes = require('./routes/Public.routes')
+const privateRoutes = require('./routes/Private.routes')
 
-app.use(express.json()) // Para poder parsear JSON
-// Usa tus rutas de autenticación
-app.use(appConf)
-app.use(authRoutes)
-app.use(appRputes)
+// Configuracion para los cors
+const corsConfig = require('./config/app.conf')
+
+app.use(corsConfig)
+app.use(cookieParser())
+
+// Configuracion para el body parser
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use('/api', publicRoutes)
+app.use('/api', privateRoutes)
+//Para archivos
+app.use('/images', express.static('images'))
 
 app.listen(4000, () => {
-    console.log('Server is running on port 4000')
+	console.log('Server is running on port 4000')
+	console.log('http://localhost:4000')
 })

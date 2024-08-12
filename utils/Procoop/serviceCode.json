@@ -1,0 +1,35 @@
+{
+  "TF": {
+    "1": "FA",
+    "2": "FB",
+    "3": "NDA",
+    "4": "NDB",
+    "5": "NCA",
+    "6": "NCB",
+    "96": "SPA",
+    "97": "SPB",
+    "98": "CSA"
+  },
+  "SV": {
+    "55": "TV",
+    "56": "TV",
+    "57": "TV",
+    "58": "TV",
+    "59": "TV",
+    "62": "TV",
+    "69": "TV",
+    "84": "TV",
+    "100": "SENSA",
+    "117": "SENSA",
+    "9": "INTERNET",
+    "1": "ELECTRICIDAD",
+    "6": "AGUA",
+    "4": "SEPELIO",
+    "90": "SEPELIO",
+    "3": "BANCO DE SANGRE",
+    "89": "BANCO DE SANGRE",
+    "41": "TELEFONO",
+    "10": "TELEFONO"
+  },
+  "CA": {}
+}

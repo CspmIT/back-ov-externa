@@ -1,4 +1,5 @@
 const express = require('express')
+const os = require('os')
 const router = express.Router()
 const { tokenVerify, usersRegistered } = require('../controllers/User.controller')
 // const { migrator1Up } = require('../controllers/migrations.controller')
@@ -49,4 +50,20 @@ router.post('/addImageInformation', addImageInformation)
 router.get('/imageInformations', ImageInformations)
 router.get('/getUsersRegistered', usersRegistered)
 
+router.get('/getIp', (req, res) => {
+	const networkInterfaces = os.networkInterfaces()
+	let containerIP = 'IP no encontrada'
+
+	for (const interfaceName in networkInterfaces) {
+		const addresses = networkInterfaces[interfaceName]
+		for (const address of addresses) {
+			if (address.family === 'IPv4' && !address.internal) {
+				containerIP = address.address
+				break
+			}
+		}
+	}
+
+	res.json({ ip: containerIP })
+})
 module.exports = router

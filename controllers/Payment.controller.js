@@ -1,87 +1,79 @@
-const axios = require('axios')
-const { db } = require('../models/index.js')
-const { debtsCustomer, phoneCustomer } = require('../services/ProcoopService.js')
-const codes = require('../utils/Procoop/serviceCode.json')
+const { payFunCheckout, enabledMethods, savePay } = require('../services/PaymentService')
+const { getProfileUser } = require('../services/UserService')
 
-async function getInvoice(req, res) {
+const paymentMethods = async (req, res) => {
 	try {
-		const { id_procoop } = req.query
-		const all = req.query.all ? true : false
-		const today = new Date()
-		const debts = await debtsCustomer(id_procoop, all)
-		if (!debts) {
-			return res.status(404).json({ message: 'Error al buscar los datos' })
-		}
-		let invoices = {}
-		let phone = ''
-		const typeInvoice = codes.TF
-		for (let i in debts) {
-			if (!invoices[debts[i].COD_SUM]) {
-				phone = ''
-				invoices[debts[i].COD_SUM] = { data: {}, list: [] }
-				phone = await phoneCustomer(debts[i].COD_SUM)
-				var numberPhone = phone.error ? '' : phone[0]['NUM_MED/NUMTEL']
-				invoices[debts[i].COD_SUM].data = { phoneNumber: numberPhone, account: debts[i].COD_SUM }
-			}
-			if (debts[i].DEB_CRE !== 1) continue
-			var vto = today > new Date(debts[i].VTO1) ? debts[i].VTO2 : debts[i].VTO1
-			var total = today > new Date(debts[i].VTO1) ? debts[i].TOTAL2 : debts[i].TOTAL1
-			var pdf = debts[i]['COD_SUM'].toString().padStart(6, '0') + debts[i]['COD_COM'].toString().padStart(4, '0') + debts[i]['SUC_COM'].toString().padStart(4, '0') + debts[i]['NUM_COM'].toString().padStart(8, '0')
-			var voucher = `${typeInvoice[debts[i].COD_COM] || 'CSB'}-${debts[i]['SUC_COM'].toString().padStart(4, '0')}-${debts[i]['NUM_COM'].toString().padStart(8, '0')}`
-			var invoiceExists = false
-			if (debts[i].NUMERO) {
-				for (let j in invoices[debts[i].COD_SUM].list) {
-					if (invoices[debts[i].COD_SUM].list[j].number && invoices[debts[i].COD_SUM].list[j].number === debts[i].NUMERO) {
-						invoiceExists = true
-						invoices[debts[i].COD_SUM].list[j].type = debts[i].TIPO === 'EN' ? `EN-${invoices[debts[i].COD_SUM].list[j].type}` : `${invoices[debts[i].COD_SUM].list[j].type}-${debts[i].TIPO}`
-						invoices[debts[i].COD_SUM].list[j].nrovoucher = voucher
-						invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? `https://facturas.coopmorteros.coop/${pdf}.pdf` : invoices[debts[i].COD_SUM].list[j].url
-						invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? debts[i].ID_FAC : invoices[debts[i].COD_SUM].list[j].url
-						invoices[debts[i].COD_SUM].list[j].amount = parseFloat(parseFloat(invoices[debts[i].COD_SUM].list[j].amount) + parseFloat(total)).toFixed(2)
-						break
-					}
-				}
-			}
-			if (!invoiceExists) {
-				var status = 1
-				if (parseInt(debts[i].SALDO) > 0) {
-					status = 0
-				}
-				var fact = {
-					id: debts[i].ID_FAC,
-					type: debts[i].TIPO,
-					nrovoucher: voucher,
-					period: debts[i].PERIODO,
-					vto: vto,
-					amount: total,
-					url: `https://facturas.coopmorteros.coop/${pdf}.pdf`,
-					status: status,
-					number: debts[i].NUMERO,
-				}
-				invoices[debts[i].COD_SUM].list.push(fact)
-			}
-		}
-
-		return res.status(200).json(invoices)
+		const result = await enabledMethods()
+		return res.status(200).json(result)
 	} catch (error) {
-		return res.status(400).json({ message: error })
+		res.status(400).json(error.message)
 	}
 }
 
-async function existInvoice(req, res) {
+const payLink = async (req, res) => {
 	try {
-		const { url } = req.query
-		const timeout = 5000
-		const response = await axios.head(url, { timeout })
-		const status = { status: response.status >= 200 && response.status < 300 ? 'existe' : 'falla' }
-		const code = status.status === 'existe' ? 200 : 404
-		return res.status(code).json(status)
+		const data = req.body
+		if (data.bills.length === 0) return res.status(400).json({ status: 0, data: 'No se seleccionaron facturas para pagar' })
+		let result
+		const pay = {
+			id_user: req.user.id,
+			customer: data.account.num,
+			name_customer: data.account.name,
+			total: data.total,
+			id_method: data.method,
+			status: 0,
+		}
+		req.id_pay = await savePay(pay, data.bills)
+		switch (data.method) {
+			case 2:
+				result = await paymentPayFun(req)
+				break
+			default:
+				result = { status: 0, data: 'Method not found' }
+				break
+		}
+		return res.status(result.status === 1 ? 200 : 400).json(result)
 	} catch (error) {
-		return res.status(404).json({ status: 'falla' })
+		res.status(400).json(error.message)
+	}
+}
+
+const paymentPayFun = async (req) => {
+	try {
+		// PASO LAS FACTURAS EN EL FORMATO PEDIDO POR PAYFUN
+		const details = []
+		const { bills } = req.body
+		bills.map((bill) => {
+			const amount = parseFloat(bill.amount).toFixed(2)
+			details.push({
+				external_reference: bill.nrovoucher,
+				concept_description: `Factura ${bill.type} - Periodo ${bill.period}`,
+				amount: amount.toString(),
+			})
+		})
+		// ESTABLEZCO FECHA DE VENCIMIENTO CON LA ZONA HORARIA PEDIDA POR PAYFUN
+		const date = new Date()
+		date.setDate(date.getDate() + 1)
+		const offset = 180
+		date.setMinutes(date.getMinutes() - offset)
+		const formattedDate = date.toISOString().replace('.000Z', '-0300')
+		// FIN DE ESTABLECIMIENTO DE FECHA
+		const user = await getProfileUser(req.user.id)
+		const data = {
+			external_id: `OV-${req.id_pay.toString().padStart(6, '0')}`,
+			name: user.name_register.toUpperCase() + ' ' + user.last_name_register.toUpperCase(),
+			dni: user.PersonData.dataValues.number_document,
+			mail: user.PersonData.dataValues.email,
+			due_date: formattedDate,
+			details,
+		}
+		return await payFunCheckout(data)
+	} catch (error) {
+		return { status: 0, data: error.message, type: 'api' }
 	}
 }
 
 module.exports = {
-	getInvoice,
-	existInvoice,
+	paymentMethods,
+	payLink,
 }

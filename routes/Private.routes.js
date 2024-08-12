@@ -16,9 +16,10 @@ const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
 const { customerServicesDetail } = require('../controllers/Services.controller')
-const { addCommentary } = require('../controllers/Managment.controller')
-const { newRequestService, getRequestsByUser, updateServiceRequest, getRequestsData, getFormService } = require('../controllers/RequestService.controller')
-const { peopleByDocumentNumber, createOrUpdatePeople } = require('../controllers/Person.controller')
+const { addCommentary, activePopups } = require('../controllers/Managment.controller')
+const { newRequestService, getRequestsByUser } = require('../controllers/RequestService.controller')
+const { peopleByDocumentNumber } = require('../controllers/Person.controller')
+const { paymentMethods, payLink } = require('../controllers/Payment.controller')
 
 router.get('/test', (req, res) => {
 	res.json({ message: 'Test route' })
@@ -32,6 +33,7 @@ router.post('/searchCuit', verifyToken, searchByCuit)
 // router.get('/users', migrationUser)
 router.get('/dataUser', verifyToken, dataUser)
 router.get('/dataUserProfile', verifyToken, dataUserProfile)
+router.get('/activePopups', verifyToken, activePopups)
 // router.get('/localidad', migrationCity)
 // router.get('/provincia', migrationState)
 
@@ -83,5 +85,9 @@ router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber
 
 router.post('/addCommentary', verifyToken, addCommentary)
 router.get('/getUsersRegistered', verifyToken, usersRegistered)
+
+//METODOS DE PAGO
+router.get('/payMethods', verifyToken, paymentMethods)
+router.post('/payLink', verifyToken, payLink)
 
 module.exports = router

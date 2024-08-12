@@ -74,6 +74,12 @@ async function saveImageInformation(ImageInformation) {
 	return await db.Image_Information.create(ImageInformation)
 }
 
+async function getActivePopups() {
+	return await db.PopUp.findAll({
+		where: { status: 1 },
+	})
+}
+
 module.exports = {
 	getCommentaries,
 	saveCommentary,
@@ -83,4 +89,5 @@ module.exports = {
 	saveInformation,
 	getImageInformation,
 	saveImageInformation,
+	getActivePopups,
 }

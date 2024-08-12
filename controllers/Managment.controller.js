@@ -1,4 +1,4 @@
-const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation, getImageInformation, saveImageInformation } = require('../services/ManagmentService')
+const { getCommentaries, saveCommentary, savePopup, getPopup, saveInformation, getInformation, getActivePopups, getImageInformation } = require('../services/ManagmentService')
 
 async function Commentaries(req, res) {
 	try {
@@ -39,6 +39,16 @@ async function Popups(req, res) {
 	try {
 		const id = req.query.id || false
 		const popups = await getPopup(false, id)
+		res.status(200).json(popups)
+	} catch (error) {
+		res.status(400).json(error.message)
+	}
+}
+
+async function activePopups(req, res) {
+	try {
+		// const id = req.query.id || false
+		const popups = await getActivePopups()
 		res.status(200).json(popups)
 	} catch (error) {
 		res.status(400).json(error.message)
@@ -94,4 +104,5 @@ module.exports = {
 	addInformation,
 	ImageInformations,
 	addImageInformation,
+	activePopups,
 }

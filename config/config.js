@@ -3,7 +3,7 @@ require('dotenv').config() // Para cargar las variables de entorno desde un arch
 module.exports = {
 	coopm_v1: {
 		username: 'DbDesarrollo',
-		password: process.env.DB_PASSWORD,
+		password: process.env.DB_PASS,
 		database: 'coopm_v1',
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT || 3306,
@@ -11,7 +11,7 @@ module.exports = {
 	},
 	coopm_v2: {
 		username: 'DbDesarrollo',
-		password: process.env.DB_PASSWORD,
+		password: process.env.DB_PASS,
 		database: 'coopm_v2',
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT || 3306,

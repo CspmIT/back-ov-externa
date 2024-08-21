@@ -7,23 +7,10 @@ SequelizeMorteros = new Sequelize(configDb.procoop.database, configDb.procoop.us
 	dialect: configDb.procoop.dialect,
 	dialectOptions: {
 		options: {
-			encrypt: true,
-			enableArithAbort: true,
+			encrypt: false,
 		},
 	},
-	pool: {
-		max: 5,
-		min: 0,
-		acquire: 30000,
-		idle: 10000,
-	},
-	retry: {
-		match: [/ECONNRESET/, /ETIMEDOUT/, /EHOSTUNREACH/, /EPIPE/, /ENOTFOUND/, /ESOCKETTIMEDOUT/],
-		max: 5,
-	},
-	logging: console.log,
 })
-
 const SequelizeOncativo = new Sequelize(configDb.procoopOncativo.database, configDb.procoopOncativo.username, configDb.procoopOncativo.password, {
 	host: configDb.procoopOncativo.host,
 	port: configDb.procoopOncativo.port,
@@ -34,7 +21,6 @@ const SequelizeOncativo = new Sequelize(configDb.procoopOncativo.database, confi
 		},
 	},
 })
-
 module.exports = {
 	SequelizeMorteros,
 	SequelizeOncativo,

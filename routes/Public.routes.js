@@ -8,6 +8,7 @@ const { getInvoice, existInvoice } = require('../controllers/Invoice.controller'
 const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
 const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
+const { paymentMercadoPago } = require('../controllers/Payment.controller')
 
 // RUTAS PARA AUTH
 
@@ -48,5 +49,7 @@ router.get('/informations', Informations)
 router.post('/addImageInformation', addImageInformation)
 router.get('/imageInformations', ImageInformations)
 router.get('/getUsersRegistered', usersRegistered)
+
+router.get('/mercadopago', paymentMercadoPago)
 
 module.exports = router

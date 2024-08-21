@@ -1,5 +1,6 @@
 const axios = require('axios')
 const { db } = require('../models')
+const { Preference, default: MercadoPagoConfig } = require('mercadopago')
 
 const savePay = async (data, bills) => {
 	try {
@@ -31,6 +32,9 @@ const enabledMethods = async () => {
 				attributes: ['name', 'logo'],
 			},
 		],
+		where: {
+			status: true,
+		},
 	}
 	return await db.PaysMethodEnabled.findAll(query)
 }
@@ -85,8 +89,41 @@ const payFunCheckout = async (data) => {
 	}
 }
 
+const MercadoPagoPreference = async (payment) => {
+	const client = new MercadoPagoConfig({ accessToken: 'TEST-3245352482209602-041711-ac091a20ba5186ef2227ea8675f25eae-1775560306' })
+	const preference = new Preference(client)
+	const data = await preference
+		.create({
+			body: {
+				items: [
+					{
+						title: payment.description,
+						quantity: 1,
+						unit_price: payment.amount,
+					},
+				],
+				external_reference: payment.external_reference,
+				auto_return: 'approved',
+				back_urls: {
+					success: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
+					failure: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
+					pending: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
+				},
+			},
+		})
+		.then((response) => {
+			return { status: 1, url: response.id }
+		})
+		.catch((error) => {
+			return { status: 0, data: error.message }
+		})
+
+	return data
+}
+
 module.exports = {
 	savePay,
 	enabledMethods,
 	payFunCheckout,
+	MercadoPagoPreference,
 }

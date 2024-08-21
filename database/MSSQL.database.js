@@ -10,7 +10,9 @@ SequelizeMorteros = new Sequelize(configDb.procoop.database, configDb.procoop.us
 			encrypt: false,
 		},
 	},
+	logging: console.log,
 })
+
 const SequelizeOncativo = new Sequelize(configDb.procoopOncativo.database, configDb.procoopOncativo.username, configDb.procoopOncativo.password, {
 	host: configDb.procoopOncativo.host,
 	port: configDb.procoopOncativo.port,
@@ -21,6 +23,7 @@ const SequelizeOncativo = new Sequelize(configDb.procoopOncativo.database, confi
 		},
 	},
 })
+
 module.exports = {
 	SequelizeMorteros,
 	SequelizeOncativo,

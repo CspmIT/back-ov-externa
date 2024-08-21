@@ -3,13 +3,16 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { verifyEmail, sendRecoverPass } = require('../services/EmailServices')
 const { getUserxEmail, setTokenTemporal, verifyEmailToken, RegisterAcept } = require('../services/UserService')
+const { SequelizeMorteros } = require('../database/MSSQL.database')
+
 const testConect = async (req, res) => {
-	try {
-		await AuthService.testConection()
-		res.json('Conexión exitosa')
-	} catch (error) {
-		res.status(400).json(error.message)
-	}
+	SequelizeMorteros.authenticate()
+		.then(() => {
+			res.json('conexion exitosa')
+		})
+		.catch((err) => {
+			return res.status(401).json({ err: err.stack })
+		})
 }
 
 const login = async (req, res) => {

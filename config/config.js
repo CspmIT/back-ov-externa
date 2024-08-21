@@ -22,7 +22,7 @@ module.exports = {
 		database: 'PR_MT_NUEVA_DEMO',
 		username: 'Oficina',
 		password: 'Serversql2021',
-		host: '192.168.0.160',
+		host: 'hpdl160',
 		port: 9387,
 		dialect: 'mssql',
 	},

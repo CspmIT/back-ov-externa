@@ -7,7 +7,7 @@ SequelizeMorteros = new Sequelize(configDb.procoop.database, configDb.procoop.us
 	dialect: configDb.procoop.dialect,
 	dialectOptions: {
 		options: {
-			encrypt: false,
+			encrypt: true,
 			enableArithAbort: true,
 		},
 	},

@@ -8,7 +8,18 @@ SequelizeMorteros = new Sequelize(configDb.procoop.database, configDb.procoop.us
 	dialectOptions: {
 		options: {
 			encrypt: false,
+			enableArithAbort: true,
 		},
+	},
+	pool: {
+		max: 5,
+		min: 0,
+		acquire: 30000,
+		idle: 10000,
+	},
+	retry: {
+		match: [/ECONNRESET/, /ETIMEDOUT/, /EHOSTUNREACH/, /EPIPE/, /ENOTFOUND/, /ESOCKETTIMEDOUT/],
+		max: 5,
 	},
 	logging: console.log,
 })

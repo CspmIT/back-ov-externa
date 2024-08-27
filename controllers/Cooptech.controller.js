@@ -1,11 +1,25 @@
 const { authCooptech, generateTokenCooptech } = require('../services/AuthService')
-const { addUserCooptech } = require('../services/CooptechServices')
+const { addUserCooptech, existEmail } = require('../services/CooptechServices')
 
 async function relationUserCooptech(req, res) {
 	try {
 		const { name, last_name, dni, email, token, profile } = req.body
 		if (!name && !last_name && !dni && !email && !token && !profile) throw new Error('se deben pasar todo los campos (nombre, apellido, dni, email y token)')
 		const result = await addUserCooptech(req.body)
+		return res.status(200).json(result)
+	} catch (error) {
+		if (error.errors) {
+			res.status(500).json(error.errors)
+		} else {
+			res.status(400).json(error.message)
+		}
+	}
+}
+async function existEmailOfivir(req, res) {
+	try {
+		const { email } = req.body
+		if (!email) throw new Error('Se deben pasar el email')
+		const result = await existEmail(email)
 		return res.status(200).json(result)
 	} catch (error) {
 		if (error.errors) {
@@ -42,6 +56,7 @@ const tokenCooptech = async (req, res) => {
 	}
 }
 module.exports = {
+	existEmailOfivir,
 	relationUserCooptech,
 	loginCooptech,
 	tokenCooptech,

@@ -18,6 +18,16 @@ const updateEmployed = async (id_person, profile) => {
 		}
 	})
 }
+const existEmail = async (email) => {
+	return db.sequelize.transaction(async (t) => {
+		try {
+			const UserExist = await db.User.findOne({ where: { email: email } })
+			return UserExist.token_app
+		} catch (error) {
+			throw error
+		}
+	})
+}
 const addUserCooptech = async (data) => {
 	await changeSchema(data.schema_name)
 	return db.sequelize.transaction(async (t) => {
@@ -34,7 +44,6 @@ const addUserCooptech = async (data) => {
 			const [User, createdUser] = await db.User.findOrCreate({ where: { email: dataUser.email }, defaults: { ...dataUser }, transaction: t })
 			if (!createdUser) {
 				const dataUpdate = {
-					// user_type: 1,
 					token_app: data.token,
 				}
 				await User.update(dataUpdate, { transaction: t })
@@ -75,5 +84,6 @@ const addUserCooptech = async (data) => {
 }
 
 module.exports = {
+	existEmail,
 	addUserCooptech,
 }

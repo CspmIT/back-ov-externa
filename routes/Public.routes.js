@@ -8,7 +8,7 @@ const { customerServices, customerConsumption } = require('../controllers/Servic
 const { getInvoice, existInvoice } = require('../controllers/Invoice.controller')
 const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
-const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
+const { relationUserCooptech, loginCooptech, tokenCooptech, existEmailOfivir } = require('../controllers/Cooptech.controller')
 
 // RUTAS PARA AUTH
 
@@ -22,6 +22,7 @@ router.post('/existToken', tokenVerify)
 
 // RUTAS PARA COOPTECH
 router.post('/relationUserCooptech', relationUserCooptech)
+router.post('/existEmailOfivir', existEmailOfivir)
 
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)

@@ -6,7 +6,7 @@ const { tokenVerify, usersRegistered } = require('../controllers/User.controller
 const { login, testConect, register, verifyRegister, password_recover } = require('../controllers/Auth.controller')
 const { customerServices, customerConsumption } = require('../controllers/Services.controller')
 const { getInvoice, existInvoice } = require('../controllers/Invoice.controller')
-const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
+const { searchByDNI, searchByCuit, migrationCity, migrationState, testConectOncativo, oncativoUser } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
 const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
 
@@ -23,6 +23,8 @@ router.post('/existToken', tokenVerify)
 // RUTAS PARA COOPTECH
 router.post('/relationUserCooptech', relationUserCooptech)
 
+router.get('/connectOncativo', testConectOncativo)
+router.get('/userOncativo', oncativoUser)
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)
 

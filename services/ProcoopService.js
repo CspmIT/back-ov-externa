@@ -18,7 +18,7 @@ const conexionProcoop = async () => {
 const userOncativoGet = async (dni) => {
     try {
         //los 10 primeros
-        const query = `SELECT * FROM personas limit 10`;
+        const query = `SELECT TOP 10 * FROM personas`;
         const result = await SequelizeOncativo.query(query, {
             type: SequelizeOncativo.QueryTypes.SELECT,
         });

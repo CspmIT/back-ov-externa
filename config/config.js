@@ -30,7 +30,7 @@ module.exports = {
 		database: 'PR_ONC_DEMO',
 		username: 'OficinaVirtual',
 		password: 'CoopTech2024!',
-		host: '192.168.90.2',
+		host: '192.168.0.239',
 		port: 1433,
 		dialect: 'mssql',
 	},

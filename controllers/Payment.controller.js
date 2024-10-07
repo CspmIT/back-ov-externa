@@ -1,4 +1,4 @@
-const { payFunCheckout, enabledMethods, savePay } = require('../services/PaymentService')
+const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference } = require('../services/PaymentService')
 const { getProfileUser } = require('../services/UserService')
 
 const paymentMethods = async (req, res) => {
@@ -25,6 +25,9 @@ const payLink = async (req, res) => {
 		}
 		req.id_pay = await savePay(pay, data.bills)
 		switch (data.method) {
+			case 1:
+				result = await paymentMercadoPago(req)
+				break
 			case 2:
 				result = await paymentPayFun(req)
 				break
@@ -35,6 +38,31 @@ const payLink = async (req, res) => {
 		return res.status(result.status === 1 ? 200 : 400).json(result)
 	} catch (error) {
 		res.status(400).json(error.message)
+	}
+}
+
+const paymentMercadoPago = async (req) => {
+	try {
+		const { bills } = req.body
+		let oldPeriod = bills[0].period
+		let newPeriod = bills[0].period
+
+		bills.forEach((bill) => {
+			const periodValue = bill.period.split('/').reverse().join('') // Convertir mm/YYYY a YYYYmm para comparación
+			if (periodValue < oldPeriod.split('/').reverse().join('')) oldPeriod = bill.period
+			if (periodValue > newPeriod.split('/').reverse().join('')) newPeriod = bill.period
+		})
+
+		const description = 'Facturas periodo' + (oldPeriod === newPeriod ? ` ${oldPeriod}` : `s ${oldPeriod} a ${newPeriod}`)
+		const data = {
+			description,
+			amount: req.body.total,
+			external_reference: req.id_pay,
+		}
+		const payment = await MercadoPagoPreference(data)
+		return payment
+	} catch (error) {
+		return { status: 0, data: error.message, type: 'api' }
 	}
 }
 
@@ -76,4 +104,5 @@ const paymentPayFun = async (req) => {
 module.exports = {
 	paymentMethods,
 	payLink,
+	paymentMercadoPago,
 }

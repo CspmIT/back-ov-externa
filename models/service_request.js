@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
 			id_user: { type: DataTypes.INTEGER, allowNull: false },
 			status: { type: DataTypes.TINYINT, allowNull: false },
 			return_later: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+			step: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 		},
 		{
 			sequelize,

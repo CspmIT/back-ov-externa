@@ -1,11 +1,12 @@
 const express = require('express')
+const os = require('os')
 const router = express.Router()
-const { migrationUser, tokenVerify, usersRegistered } = require('../controllers/User.controller')
+const { tokenVerify, usersRegistered } = require('../controllers/User.controller')
 // const { migrator1Up } = require('../controllers/migrations.controller')
 const { login, testConect, register, verifyRegister, password_recover } = require('../controllers/Auth.controller')
 const { customerServices, customerConsumption } = require('../controllers/Services.controller')
 const { getInvoice, existInvoice } = require('../controllers/Invoice.controller')
-const { searchByDNI, searchByCuit, migrationCity, migrationState } = require('../controllers/Procoop.controller')
+const { searchByDNI, searchByCuit, migrationCity, migrationState, testConectOncativo, oncativoUser } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
 const { relationUserCooptech, loginCooptech, tokenCooptech } = require('../controllers/Cooptech.controller')
 const { paymentMercadoPago } = require('../controllers/Payment.controller')
@@ -23,6 +24,8 @@ router.post('/existToken', tokenVerify)
 // RUTAS PARA COOPTECH
 router.post('/relationUserCooptech', relationUserCooptech)
 
+router.get('/connectOncativo', testConectOncativo)
+router.get('/userOncativo', oncativoUser)
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)
 
@@ -52,4 +55,20 @@ router.get('/getUsersRegistered', usersRegistered)
 
 router.get('/mercadopago', paymentMercadoPago)
 
+router.get('/getIp', (req, res) => {
+	const networkInterfaces = os.networkInterfaces()
+	let containerIP = 'IP no encontrada'
+
+	for (const interfaceName in networkInterfaces) {
+		const addresses = networkInterfaces[interfaceName]
+		for (const address of addresses) {
+			if (address.family === 'IPv4' && !address.internal) {
+				containerIP = address.address
+				break
+			}
+		}
+	}
+
+	res.json({ ip: containerIP })
+})
 module.exports = router

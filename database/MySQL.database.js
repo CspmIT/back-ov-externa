@@ -1,5 +1,5 @@
 const { Sequelize, QueryTypes } = require('sequelize')
-const config = require('../config/config.json')
+const config = require('../config/config')
 
 // const sequelizeCoopm_v1 = new Sequelize(config.coopm_v1.database, config.coopm_v1.username, config.coopm_v1.password, {
 //     host: config.coopm_v1.host,

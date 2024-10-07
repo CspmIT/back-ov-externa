@@ -3,13 +3,16 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { verifyEmail, sendRecoverPass } = require('../services/EmailServices')
 const { getUserxEmail, setTokenTemporal, verifyEmailToken, RegisterAcept } = require('../services/UserService')
+const { SequelizeMorteros } = require('../database/MSSQL.database')
+
 const testConect = async (req, res) => {
-	try {
-		await AuthService.testConection()
-		res.json('Conexión exitosa')
-	} catch (error) {
-		res.status(400).json(error.message)
-	}
+	SequelizeMorteros.authenticate()
+		.then(() => {
+			res.json('conexion exitosa')
+		})
+		.catch((err) => {
+			return res.status(401).json({ err: err.stack })
+		})
 }
 
 const login = async (req, res) => {
@@ -78,10 +81,10 @@ const verifyRegister = async (req, res) => {
 
 const password_recover = async (req, res) => {
 	try {
-		const { email } = req.query
+		const { email } = req.body
 		if (!email) throw new Error('No se enviaron los parametros necesarios')
 		const user = await getUserxEmail(email)
-		const tokenTemp = await crypto.randomBytes(64).toString('hex')
+		const tokenTemp = crypto.randomBytes(64).toString('hex')
 		// Genero url pra click en email para redireccionar y que cambie la password
 		const fullUrl = `${req.protocol}://${req.get('host')}/ChangePassword/${tokenTemp}/${user.id}`
 		// Enviar correo electronico con el link para resetear la contraseña

@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize')
-const configDb = require('../config/config.json')
+const configDb = require('../config/config')
 
 SequelizeMorteros = new Sequelize(configDb.procoop.database, configDb.procoop.username, configDb.procoop.password, {
 	host: configDb.procoop.host,

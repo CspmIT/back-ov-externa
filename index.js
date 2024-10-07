@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const cookieParser = require('cookie-parser')
@@ -7,6 +8,7 @@ const privateRoutes = require('./routes/Private.routes')
 
 // Configuracion para los cors
 const corsConfig = require('./config/app.conf')
+
 app.use(corsConfig)
 app.use(cookieParser())
 

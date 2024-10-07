@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 			id_method: DataTypes.INTEGER,
 			api_key: DataTypes.STRING,
 			access_token: DataTypes.STRING,
+			status: DataTypes.BOOLEAN,
 		},
 		{
 			sequelize,

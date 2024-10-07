@@ -81,10 +81,10 @@ const verifyRegister = async (req, res) => {
 
 const password_recover = async (req, res) => {
 	try {
-		const { email } = req.query
+		const { email } = req.body
 		if (!email) throw new Error('No se enviaron los parametros necesarios')
 		const user = await getUserxEmail(email)
-		const tokenTemp = await crypto.randomBytes(64).toString('hex')
+		const tokenTemp = crypto.randomBytes(64).toString('hex')
 		// Genero url pra click en email para redireccionar y que cambie la password
 		const fullUrl = `${req.protocol}://${req.get('host')}/ChangePassword/${tokenTemp}/${user.id}`
 		// Enviar correo electronico con el link para resetear la contraseña

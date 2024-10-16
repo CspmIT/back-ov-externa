@@ -16,7 +16,7 @@ module.exports = {
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT || 3306,
 		dialect: 'mysql',
-		timezone: 'America/Argentina/Buenos_Aires',
+		// timezone: 'America/Argentina/Buenos_Aires',
 	},
 	procoop: {
 		database: 'PR_MT_NUEVA_DEMO',

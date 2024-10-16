@@ -3,10 +3,10 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const { verifyEmail, sendRecoverPass } = require('../services/EmailServices')
 const { getUserxEmail, setTokenTemporal, verifyEmailToken, RegisterAcept } = require('../services/UserService')
-const { SequelizeMorteros } = require('../database/MSSQL.database')
+const { SequelizeMorteros, SequelizeOncativo } = require('../database/MSSQL.database')
 
 const testConect = async (req, res) => {
-	SequelizeMorteros.authenticate()
+	SequelizeOncativo.authenticate()
 		.then(() => {
 			res.json('conexion exitosa')
 		})

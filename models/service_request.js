@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 			status: { type: DataTypes.TINYINT, allowNull: false },
 			return_later: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 			step: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+            person_data: { type: DataTypes.JSON, allowNull: true },
 		},
 		{
 			sequelize,

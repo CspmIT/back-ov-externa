@@ -8,7 +8,13 @@ async function getInvoice(req, res) {
 		const { id_procoop } = req.query
 		const all = req.query.all ? true : false
 		const today = new Date()
-		const debts = await debtsCustomer(id_procoop, all)
+		const accounts = await accountsCustomer(id_procoop)
+		if (!accounts || accounts.length === 0) {
+			return res.status(404).json({ message: 'Error al buscar los datos' })
+		}
+		// Agregar cada account
+		const accountsArray = accounts.map((account) => account.COD_SUM)
+		const debts = await debtsCustomer(accountsArray, all)
 		if (!debts) {
 			return res.status(404).json({ message: 'Error al buscar los datos' })
 		}

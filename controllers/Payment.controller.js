@@ -1,3 +1,4 @@
+const { getIo } = require('../config/sockets')
 const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference } = require('../services/PaymentService')
 const { getProfileUser } = require('../services/UserService')
 
@@ -101,8 +102,27 @@ const paymentPayFun = async (req) => {
 	}
 }
 
+const enviarNoti = async (req, res) => {
+	try {
+		const io = getIo()
+		// Tu lógica para preparar el mensaje
+		const message = {
+			status: 1,
+			type: 'notification',
+			message: 'Pagado con exito',
+		}
+
+		// Emitir el mensaje a todos los clientes conectados
+		io.emit('payment', message)
+		res.status(200).json('Hola')
+	} catch (error) {
+		res.status(400).json(error.message)
+	}
+}
+
 module.exports = {
 	paymentMethods,
 	payLink,
 	paymentMercadoPago,
+	enviarNoti,
 }

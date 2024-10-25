@@ -19,10 +19,10 @@ module.exports = {
 		timezone: 'America/Argentina/Buenos_Aires',
 	},
 	procoop: {
-		database: 'PR_MT_NUEVA_DEMO',
+		database: 'PR_MT_DEMO',
 		username: 'Oficina',
 		password: 'Serversql2021',
-		host: '192.168.0.160',
+		host: '192.168.0.150',
 		port: 9387,
 		dialect: 'mssql',
 	},

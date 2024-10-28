@@ -1,32 +1,8 @@
 const { z } = require('zod');
+const {
+    createPositiveIntegerStringSchema,
+} = require('../createPostiveIntegerString.schema');
 
-// {
-//     typePerson: '1',
-//     id: 21,
-//     DNI: '41240962',
-//     name: 'Agustin',
-//     last_name: 'Comba',
-//     SEXO: '2',
-//     TIP_DNI: '1',
-//     NUM_DNI: '41240962',
-//     dia: '19',
-//     mes: '02',
-//     'año': '1999',
-//     EMAIL: 'agucomba@gmail.com',
-//     characteristic: '3562',
-//     number: '459440',
-//     caracteristicaFijo: '',
-//     numeroFijo: '',
-//     COD_SIT: 4
-//   }
-const createPositiveIntegerStringSchema = (fieldName) => {
-    return z
-        .string({ message: `${fieldName} es requerido` })
-        .transform((val) => parseInt(val, 10))
-        .refine((val) => Number.isInteger(val) && val > 0, {
-            message: `${fieldName} el tipo de dato no es válido`,
-        });
-};
 const PersonRequestSchema = z.object({
     // transformo de string a number
     typePerson: createPositiveIntegerStringSchema('Tipo de persona'),

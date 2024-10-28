@@ -1,5 +1,5 @@
-'use strict';
-const { Model } = require('sequelize');
+'use strict'
+const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
     class Service_Items extends Model {
         /**
@@ -12,14 +12,10 @@ module.exports = (sequelize, DataTypes) => {
             this.belongsTo(models.Service_Request, {
                 foreignKey: 'id_service_request',
                 as: 'items',
-            });
+            })
             this.belongsTo(models.Service_Form, {
                 foreignKey: 'id_service_form',
                 as: 'form',
-            });
-            this.belongsTo(models.User, {
-                foreignKey: 'responsible',
-                as: 'responsible_user',
             })
         }
     }
@@ -32,12 +28,11 @@ module.exports = (sequelize, DataTypes) => {
             status: { type: DataTypes.TINYINT, allowNull: false },
             cod_sum: DataTypes.INTEGER,
             service_name: { type: DataTypes.STRING, allowNull: false },
-            responsible: { type: DataTypes.INTEGER, allowNull: true},
         },
         {
             sequelize,
             modelName: 'Service_Items',
         }
-    );
-    return Service_Items;
-};
+    )
+    return Service_Items
+}

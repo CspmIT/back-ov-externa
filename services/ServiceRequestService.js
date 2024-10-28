@@ -1,26 +1,27 @@
-const { db } = require('../models');
+const { where } = require('sequelize')
+const { db } = require('../models')
 
 const createRequestService = async (userID, services) => {
-    const t = await db.sequelize.transaction();
+    const t = await db.sequelize.transaction()
     try {
         const serviceRequest = {
             id_user: userID,
-            status: 1,
+            status: 0,
             person_data: {},
-        };
+        }
 
         const requestService = await db.Service_Request.create(serviceRequest, {
             transaction: t,
-        });
+        })
 
-        const id_form = [];
+        const id_form = []
         for (const element of services) {
             if (element.tipo !== 0) {
                 const service_form = await db.Service_Form.create(
                     {},
                     { transaction: t }
-                );
-                id_form.push(service_form.id);
+                )
+                id_form.push(service_form.id)
             }
         }
 
@@ -32,37 +33,38 @@ const createRequestService = async (userID, services) => {
                 service_type: service.tipo,
                 status: 1,
                 service_name: service.nombre,
-            }));
+            }))
 
-        await db.Service_Items.bulkCreate(servicesToSave, { transaction: t });
+        await db.Service_Items.bulkCreate(servicesToSave, { transaction: t })
 
-        await t.commit();
+        await t.commit()
 
-        return requestService;
+        return requestService
     } catch (error) {
-        await t.rollback();
-        throw error;
+        await t.rollback()
+        throw error
     }
-};
+}
 
-const returnLaterService = async (
-    serviceRequest,
-    ServiceItems = undefined,
-    ServiceForm = undefined
-) => {
-    const t = await db.sequelize.transaction();
+const returnLaterService = async (AllData, ServiceForm = undefined) => {
+    const t = await db.sequelize.transaction()
     try {
-        const updateRquest = await db.Service_Request.update(serviceRequest, {
-            where: { id: serviceRequest.id },
-            transaction: t,
-        });
+        if (AllData.Service_Request) {
+            const updateRquest = await db.Service_Request.update(
+                serviceRequest,
+                {
+                    where: { id: serviceRequest.id },
+                    transaction: t,
+                }
+            )
+        }
 
         if (ServiceItems !== undefined) {
             for (const item of ServiceItems) {
                 await db.Service_Items.update(
                     { status: 0 },
                     { where: { id: item.id }, transaction: t }
-                );
+                )
             }
         }
 
@@ -71,31 +73,116 @@ const returnLaterService = async (
                 await db.Service_Form.update(
                     { status: 0 },
                     { where: { id: form.id }, transaction: t }
-                );
+                )
             }
         }
 
-        await t.commit();
-        return serviceRequest;
+        await t.commit()
+        return serviceRequest
     } catch (error) {
-        await t.rollback();
-        throw error;
+        await t.rollback()
+        throw error
     }
-};
+}
 
+// Guardado del primer paso
 const saveFirstStepData = async (userID, person, requestID) => {
     try {
-        const dataSave = { person_data: person, id_user: userID };
+        const dataSave = { person_data: person, id_user: userID, status: 0 }
 
         const request = await db.Service_Request.update(dataSave, {
             where: { id: requestID },
-        });
+        })
 
-        return request;
+        return request
     } catch (error) {
-        throw error;
+        throw error
     }
-};
+}
+
+// Guardado del formulario de energia electrica
+const saveElectricalDataForm = async (
+    serviceRequest,
+    formData,
+    connectionAddress
+) => {
+    const t = await db.sequelize.transaction()
+
+    try {
+        const requestID = serviceRequest.id
+        const formID = formData.id_service_form
+
+        console.log(connectionAddress)
+        console.log(formData.typeActivity)
+
+        const updateRquest = await db.Service_Request.update(
+            { step: serviceRequest.step, status: serviceRequest.status },
+            {
+                where: { id: requestID },
+                transaction: t,
+            }
+        )
+
+        const updateServiceForm = await db.Service_Form.update(
+            {
+                form_data: formData,
+                connection_address_tmp: JSON.stringify(connectionAddress),
+                type_activity: parseInt(formData.typeActivity, 10),
+            },
+            { where: { id: formID }, transaction: t }
+        )
+
+        await t.commit()
+        return { updateRquest, updateServiceForm }
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const saveWaterDataForm = async (
+    serviceRequest,
+    formData,
+    connectionAddress = false
+) => {
+    const t = await db.sequelize.transaction()
+
+    try {
+        const requestID = serviceRequest.id
+        const formID = formData.id_service_form
+
+        const updateRquest = await db.Service_Request.update(
+            { step: serviceRequest.step, status: serviceRequest.status },
+            {
+                where: { id: requestID },
+                transaction: t,
+            }
+        )
+
+        let objSave = {}
+        // genero el objeto para el guardado
+        if (connectionAddress) {
+            objSave = {
+                form_data: formData,
+                connection_address_tmp: connectionAddress,
+            }
+        } else {
+            objSave = {
+                form_data: formData,
+            }
+        }
+        const updateServiceForm = await db.Service_Form.update(objSave, {
+            where: { id: formID },
+            transaction: t,
+        })
+
+        await t.commit()
+        return { updateRquest, updateServiceForm }
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
 
 const getRequestServiceByUser = async (userID) => {
     const requests = await db.Service_Request.findAll({
@@ -105,20 +192,39 @@ const getRequestServiceByUser = async (userID) => {
                 association: 'ServiceItems',
             },
         ],
-    });
+    })
 
-    return requests;
-};
+    return requests
+}
+
+const getServiceFormByServiceRequest = async (
+    serviceRequestID,
+    typeService
+) => {
+    const serviceItem = await db.Service_Items.findAll({
+        where: {
+            id_service_request: serviceRequestID,
+            service_type: typeService,
+        },
+        include: [
+            {
+                association: 'form',
+            },
+        ],
+    })
+
+    return serviceItem
+}
 
 const updateRequestService = async (data) => {
-    const t = await db.sequelize.transaction();
+    const t = await db.sequelize.transaction()
     try {
-        const { serviceRequest, person, ServiceItems } = data;
+        const { serviceRequest, person, ServiceItems } = data
         if (serviceRequest) {
             await db.Service_Request.update(serviceRequest, {
                 where: { id: serviceRequest.id },
                 transaction: t,
-            });
+            })
         }
         if (person) {
             const people = {
@@ -129,19 +235,19 @@ const updateRequestService = async (data) => {
                 type_person: person.type_person,
                 situation_tax: person.situation_tax,
                 fixed_phone: ``,
-            };
+            }
             await db.People.update(person, {
                 where: { id: person.id },
                 transaction: t,
-            });
+            })
         }
-        await t.commit();
-        return requestService;
+        await t.commit()
+        return requestService
     } catch (error) {
-        await t.rollback();
-        throw error;
+        await t.rollback()
+        throw error
     }
-};
+}
 
 const getRequestServiceData = async (requestID) => {
     const request = await db.Service_Request.findByPk(requestID, {
@@ -161,10 +267,10 @@ const getRequestServiceData = async (requestID) => {
                 ],
             },
         ],
-    });
+    })
 
-    return request;
-};
+    return request
+}
 module.exports = {
     createRequestService,
     getRequestServiceByUser,
@@ -172,4 +278,7 @@ module.exports = {
     getRequestServiceData,
     returnLaterService,
     saveFirstStepData,
-};
+    getServiceFormByServiceRequest,
+    saveElectricalDataForm,
+    saveWaterDataForm,
+}

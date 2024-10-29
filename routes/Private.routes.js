@@ -69,14 +69,6 @@ router.post('/getDetailService', customerServicesDetail)
 router.get('/searchUserxDni', verifyToken, searchUserxDni)
 router.get('/searchUserxNumCustomer', verifyToken, searchUserxNumCustomer)
 
-// FUNCIONES PARA SOLICITUD DE SERVICIOS
-router.post('/createRequestService', verifyToken, newRequestService)
-router.post('/getRequestsByUser', verifyToken, getRequestsByUser)
-router.post('/createOrUpdatePeople', verifyToken, createOrUpdatePeople)
-router.post('/updateServiceRequest', verifyToken, updateServiceRequest)
-router.post('/getRequestsData', verifyToken, getRequestsData)
-router.post('/getFormService', verifyToken, getFormService)
-
 // Funciones para buscar en procoop
 router.get('/searchServicesTelecomunications/:typeUser', verifyToken, getServicesTelecomunications)
 router.get('/getSituationsIva', verifyToken, getSituationsIva)

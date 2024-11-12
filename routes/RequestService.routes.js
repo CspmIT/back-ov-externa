@@ -27,6 +27,8 @@ router.post('/firstStep', verifyToken, firstStepData)
 router.post('/saveElectricPower', verifyToken, electricFormData)
 // router.post('/saveFormData', verifyToken);
 router.post('/guardarAgua', verifyToken, waterFormData)
+// Guardado del formulario de servicios sociales
+router.post('/saveSocialServices', verifyToken, )
 
 router.post('/getRequestsByUser', verifyToken, getRequestsByUser)
 router.post('/createOrUpdatePeople', verifyToken, createOrUpdatePeople)

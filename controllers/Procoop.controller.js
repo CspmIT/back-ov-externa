@@ -2,7 +2,6 @@ const { db } = require('../models/index.js')
 const {
     connexionProcoop,
     userOncativoGet,
-    getRelationshipsProcoop,
 } = require('../services/ProcoopService.js')
 const {
     ListCityProcoop,
@@ -16,6 +15,7 @@ const {
     getPriceAndDescTV,
     getPriceAndDescInternet,
     getSituations,
+    getRelationshipsProcoop,
 } = require('../services/ProcoopService.js')
 const {
     updatePrimaryAccountUserProcoop,
@@ -196,8 +196,8 @@ async function getSituationsIva(req, res) {
 
 async function getRelationships(req, res) {
     try {
-        const { id } = req.params
-        const relationships = await getRelationshipsProcoop(id)
+        const { id } = req?.params
+        const relationships = await getRelationshipsProcoop(id || null)
         console.log(relationships)
         return res.status(200).json(relationships)
     } catch (error) {

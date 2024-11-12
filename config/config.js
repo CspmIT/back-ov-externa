@@ -1,4 +1,4 @@
-require('dotenv').config(); // Para cargar las variables de entorno desde un archivo .env
+require('dotenv').config() // Para cargar las variables de entorno desde un archivo .env
 
 module.exports = {
     coopm_v1: {
@@ -29,9 +29,9 @@ module.exports = {
     procoopOncativo: {
         database: 'PR_ONC_DEMO',
         username: 'OficinaVirtual',
-        password: 'CoopTech2024!',
+        password: 'CoopTech2024*',
         host: '192.168.90.2',
         port: 1433,
         dialect: 'mssql',
     },
-};
+}

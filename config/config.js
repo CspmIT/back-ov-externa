@@ -27,7 +27,7 @@ module.exports = {
         dialect: 'mssql',
     },
     procoopOncativo: {
-        database: 'PR_ONC_DEMO',
+        database: 'PR_ONC',
         username: 'OficinaVirtual',
         password: 'CoopTech2024*',
         host: '192.168.90.2',

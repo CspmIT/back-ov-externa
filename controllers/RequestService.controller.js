@@ -232,7 +232,7 @@ const waterFormData = async (req, res) => {
 const socialServiceData = async (req, res) => {
     try {
         const { id } = req.user
-        const { serviceRequest, form_data, connection_address_tmp } = req.body
+        const { serviceRequest, form_data } = req.body
         if (!serviceRequest || !form_data)
             throw new Error('Faltan datos para realizar la consulta')
         if (!id) throw new Error('No tienes permisos para hacer esta accion')
@@ -339,4 +339,5 @@ module.exports = {
     firstStepData,
     electricFormData,
     waterFormData,
+    socialServiceData,
 }

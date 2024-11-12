@@ -5,4 +5,4 @@ const router = expres.Router()
 
 router.get('/getRelationships', verifyToken, getRelationships)
 
-exports.router = router
+module.exports = router

@@ -8,10 +8,10 @@ const { db } = require('../models')
 
 const conexionProcoop = async () => {
     try {
-        await SequelizeMorteros.authenticate()
+        await SequelizeOncativo.authenticate()
         console.log('CONEXIÓN EXITOSA')
     } catch (error) {
-        console.error('ERROR DE MIERDACOOP:', error)
+        console.error('ERROR DE PROCOOP:', error)
     }
 }
 
@@ -30,9 +30,9 @@ const userOncativoGet = async (dni) => {
 const personaPorDni = async (dni) => {
     try {
         const query = `SELECT * FROM personas WHERE NUM_DNI = :dni AND TIP_PERSO = 1`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { dni: dni },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             // Retorno un objeto con un mensaje de error
@@ -48,9 +48,9 @@ const personaPorDni = async (dni) => {
 const empresaPorCuit = async (cuit) => {
     try {
         const query = `SELECT * FROM personas WHERE NUM_DNI = :cuit AND TIP_PERSO = 2`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { cuit: cuit },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontró la empresa' }
@@ -64,9 +64,9 @@ const empresaPorCuit = async (cuit) => {
 const invoicesXsocio = async (id_procoop) => {
     try {
         const query = `SELECT * FROM facturas WHERE id_procoop = :id_procoop`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { id_procoop: id_procoop },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontraron facturas' }
@@ -89,7 +89,7 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
         })
         if (user) return user.get()
         const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { numberCustomer: numberCustomer },
             type: QueryTypes.SELECT,
         })
@@ -97,7 +97,7 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
             throw new Error('No se encontro socio')
         }
         const query2 = `SELECT * FROM personas WHERE COD_PER = ${result[0].cod_per}`
-        const result2 = await SequelizeMorteros.query(query2, {
+        const result2 = await SequelizeOncativo.query(query2, {
             type: QueryTypes.SELECT,
         })
         if (result2.length === 0) {
@@ -112,8 +112,8 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
 const ListStreetProcoop = async () => {
     try {
         const query = `SELECT * FROM calles`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             // Retorno un objeto con un mensaje de error
@@ -128,8 +128,8 @@ const ListStreetProcoop = async () => {
 const ListCityProcoop = async () => {
     try {
         const query = `SELECT * FROM localida`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             // Retorno un objeto con un mensaje de error
@@ -144,8 +144,8 @@ const ListCityProcoop = async () => {
 const ListStateProcoop = async () => {
     try {
         const query = `SELECT * FROM PROVINC`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             // Retorno un objeto con un mensaje de error
@@ -169,9 +169,9 @@ const serviceCustomer = async (data) => {
                     INNER JOIN Datos_ServiciosXSuministro dss ON dss.cod_sum = ds.cod_sum
                     INNER JOIN Servicio s ON s.cod_ser = dss.cod_ser
                     WHERE ds.${data.type} = :number ORDER BY ds.cod_sum`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { number: data.number },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontró la persona' }
@@ -197,13 +197,13 @@ const consumoCustomer = async (data) => {
         const searchSince = `${lastMonth}/01/${lastYear}`
         const query = `SELECT cod_ser, cod_sum, cod_med, fec_act, consumo, periodo, cod_cat,facturado, est_act FROM cons_ser 
     WHERE cod_ser = :ser AND fec_act >= :since AND cod_sum = :account`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: {
                 ser: data.ser,
                 since: searchSince,
                 account: data.account,
             },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontró la persona' }
@@ -225,9 +225,9 @@ const debtsCustomer = async (number, all = false) => {
                       all ? '' : 'AND dd.SALDO != 0'
                   } 
                   ORDER BY FECHA DESC`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { number: number },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {
@@ -239,9 +239,9 @@ const phoneCustomer = async (account) => {
     try {
         const query = `SELECT ID_SERSOC, COD_SUM, COD_SER, COD_CAT, [NUM_MED/NUMTEL]
                   FROM Datos_ServiciosXSuministro WHERE COD_SUM = :account AND cod_ser = 10 AND fec_baja IS NULL`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { account: account },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontró la persona' }
@@ -263,13 +263,13 @@ const adheridosSS = async (data) => {
                   LEFT JOIN	document d ON pe.tip_dni = d.cod_doc 
                   LEFT JOIN	servicio s ON ad.cod_ser = s.cod_ser
                   WHERE	ad.cod_sum = :account AND ad.cod_ser IN (:ser1, :ser2) AND fec_baj IS NULL`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: {
                 account: data.account,
                 ser1: data.ser[0],
                 ser2: data.ser[1],
             },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
             return { error: 'No se encontró la persona' }
@@ -519,8 +519,8 @@ const getPriceAndDescInternet = async (user = false) => {
 						AND CS.COD_CAT = 143 
 						OR CS.COD_CAT = 145 
 						OR CS.COD_CAT = 159 ${user === 4 ? 'OR CS.COD_CAT = 123' : ''}`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {
@@ -552,8 +552,8 @@ const getPriceAndDescTV = async (user = false) => {
 				OR (CS.COD_SER = 117 AND CS.COD_CAT = 2)
 				OR CS.COD_SER = 100 AND CS.COD_CAT = 10`
         }
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {
@@ -577,9 +577,9 @@ const getPriceAndDescTelefonia = async (user) => {
 				INNER JOIN CATTARIF AS CT
 				ON CT.COD_CATSER = CS.COD_CATSER
 				WHERE S.COD_SER = 10 AND CS.COD_CAT = :cod_cat`
-        const result = await SequelizeMorteros.query(query, {
+        const result = await SequelizeOncativo.query(query, {
             replacements: { cod_cat: cod_cat },
-            type: SequelizeMorteros.QueryTypes.SELECT,
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {
@@ -590,8 +590,8 @@ const getPriceAndDescTelefonia = async (user) => {
 const getSituations = async () => {
     try {
         const query = `SELECT cod_sit, des_sit, res_sit FROM sitiva where cod_sit not in (2,3)`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {
@@ -603,15 +603,15 @@ const getRelationshipsProcoop = async (id) => {
     try {
         if (id) {
             const query = `SELECT * FROM VINCULOS WHERE cod_vin = :id`
-            const result = await SequelizeMorteros.query(query, {
+            const result = await SequelizeOncativo.query(query, {
                 replacements: { id: id },
-                type: SequelizeMorteros.QueryTypes.SELECT,
+                type: SequelizeOncativo.QueryTypes.SELECT,
             })
             return result
         }
         const query = `SELECT * FROM VINCULOS`
-        const result = await SequelizeMorteros.query(query, {
-            type: SequelizeMorteros.QueryTypes.SELECT,
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
         })
         return result
     } catch (error) {

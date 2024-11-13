@@ -619,6 +619,18 @@ const getRelationshipsProcoop = async (id) => {
     }
 }
 
+async function getAllProcoop() {
+    try {
+        const query = `SELECT * FROM Datos_Personales`
+        const result = await SequelizeOncativo.query(query, {
+            type: SequelizeOncativo.QueryTypes.SELECT,
+        })
+        return result
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     personaPorDni,
     empresaPorCuit,
@@ -644,4 +656,5 @@ module.exports = {
     getSituations,
     userOncativoGet,
     getRelationshipsProcoop,
+    getAllProcoop,
 }

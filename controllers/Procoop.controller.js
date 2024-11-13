@@ -2,6 +2,7 @@ const { db } = require('../models/index.js')
 const {
     connexionProcoop,
     userOncativoGet,
+    getAllProcoop,
 } = require('../services/ProcoopService.js')
 const {
     ListCityProcoop,
@@ -205,6 +206,15 @@ async function getRelationships(req, res) {
     }
 }
 
+async function getAll(req, res) {
+    try {
+        const result = await getAllProcoop()
+        return res.status(200).json(result)
+    } catch (error) {
+        return res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     searchByCuit,
     searchByDNI,
@@ -220,4 +230,5 @@ module.exports = {
     testConectOncativo,
     oncativoUser,
     getRelationships,
+    getAll,
 }

@@ -211,9 +211,9 @@ const debtsCustomer = async (number, all = false) => {
     try {
         const query = `SELECT  dd.ID_FAC, dd.COD_COM,  dd.SUC_COM, fa.pagado, dd.NUM_COM, dd.TIPO, dd.FECHA, dd.COD_SOC, dd.COD_PER, dd.COD_SUM,
                   dd.VTO1, dd.TOTAL1, dd.VTO2, dd.TOTAL2, dd.PAGA, dd.FECHASALDO, dd.SALDO, dd.PERIODO, tf.NUMERO, dd.DEB_CRE
-                  FROM  pr_mt_nueva_demo.dbo.datos_deuda dd 
-                  LEFT JOIN pr_mt_nueva_demo.dbo.talonfac tf ON dd.id_fac = tf.Id_Fac
-                  INNER JOIN pr_mt_nueva_demo.dbo.facturas fa ON fa.id_fac = dd.Id_Fac 
+                  FROM  datos_deuda dd 
+                  LEFT JOIN talonfac tf ON dd.id_fac = tf.Id_Fac
+                  INNER JOIN facturas fa ON fa.id_fac = dd.Id_Fac 
                   WHERE dd.cod_soc = :number AND dd.FECHA  >= Dateadd(mm,-13,Getdate()) ${
                       all ? '' : 'AND dd.SALDO != 0'
                   } 

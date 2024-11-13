@@ -8,7 +8,11 @@ const updateEmployed = async (id_person, profile) => {
 				id_person_physical: personPhysical.id,
 				profile: profile,
 			}
-			const [Employed, created] = await db.Employee.findOrCreate({ where: { id_person_physical: personPhysical.id }, defaults: { ...dataEmployed }, transaction: t })
+			const [Employed, created] = await db.Employee.findOrCreate({
+				where: { id_person_physical: personPhysical.id },
+				defaults: { ...dataEmployed },
+				transaction: t,
+			})
 			if (!created) {
 				await Employed.update({ profile: profile }, { transaction: t })
 			}
@@ -41,7 +45,11 @@ const addUserCooptech = async (data) => {
 				type_person: 1,
 				email_verified: formatDate(new Date().toLocaleDateString()),
 			}
-			const [User, createdUser] = await db.User.findOrCreate({ where: { email: dataUser.email }, defaults: { ...dataUser }, transaction: t })
+			const [User, createdUser] = await db.User.findOrCreate({
+				where: { email: dataUser.email },
+				defaults: { ...dataUser },
+				transaction: t,
+			})
 			if (!createdUser) {
 				const dataUpdate = {
 					token_app: data.token,
@@ -56,7 +64,11 @@ const addUserCooptech = async (data) => {
 					type_document: 1,
 					number_document: data.dni,
 				}
-				const [Person, createdPerson] = await db.Person.findOrCreate({ where: { number_document: personCreate.number_document }, defaults: { ...personCreate }, transaction: t })
+				const [Person, createdPerson] = await db.Person.findOrCreate({
+					where: { number_document: personCreate.number_document },
+					defaults: { ...personCreate },
+					transaction: t,
+				})
 				if (createdPerson) {
 					const dataPersonPhysical = {
 						name: data.name,

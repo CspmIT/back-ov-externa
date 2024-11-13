@@ -23,6 +23,10 @@ module.exports = {
 			access_token: {
 				type: Sequelize.STRING,
 			},
+			status: {
+				defaultValue: true,
+				type: Sequelize.BOOLEAN,
+			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,

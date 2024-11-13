@@ -620,6 +620,7 @@ const getUserxNumCustomer = async (num) => {
         let responseData
         if (!user) {
             user = await Persona_x_COD_SOC(num)
+            console.log(user)
             if (user[0].TIP_PERSO === 1) {
                 responseData = { name: '', last_name: user[0].APELLIDOS }
             } else {

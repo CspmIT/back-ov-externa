@@ -80,23 +80,16 @@ const invoicesXsocio = async (id_procoop) => {
 const Persona_x_COD_SOC = async (numberCustomer) => {
     try {
         if (!numberCustomer) throw new Error('falta pasar el numero de socio')
-        const user = await db.Person.findOne({
-            where: { number_customer: numberCustomer },
-            include: [
-                { association: 'Person_physical' },
-                { association: 'Person_legal' },
-            ],
-        })
-        if (user) return user.get()
         const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
         const result = await SequelizeOncativo.query(query, {
             replacements: { numberCustomer: numberCustomer },
             type: QueryTypes.SELECT,
         })
+        console.log(result)
         if (result.length === 0) {
             throw new Error('No se encontro socio')
         }
-        const query2 = `SELECT * FROM personas WHERE COD_PER = ${result[0].cod_per}`
+        const query2 = `SELECT * FROM personas WHERE COD_PER = ${result[0].COD_PER}`
         const result2 = await SequelizeOncativo.query(query2, {
             type: QueryTypes.SELECT,
         })

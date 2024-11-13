@@ -85,7 +85,6 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
             replacements: { numberCustomer: numberCustomer },
             type: QueryTypes.SELECT,
         })
-        console.log(result)
         if (result.length === 0) {
             throw new Error('No se encontro socio')
         }

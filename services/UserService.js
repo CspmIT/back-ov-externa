@@ -270,6 +270,7 @@ const updatePersonUserCreated = async (
                 id_type_sex: dataUpdate.sex,
                 id_person: PersonUser.id,
             }
+            console.log(dataPersonPhysicalProfile.born_date)
             const [Physical, created] = await db.Person_physical.findOrCreate({
                 where: { num_dni: dataPersonPhysicalProfile.num_dni },
                 defaults: { ...dataPersonPhysicalProfile },
@@ -385,9 +386,7 @@ const updateLvl2 = async (user, dataUpdate) => {
                 procoop_last_name: nombre,
                 email: user.email,
                 number_customer:
-                    num_dni == dataUpdate.document_number
-                        ? dataUpdate.number_customer
-                        : null,
+                    dataUpdate.number_customer || dataProcoop.NUM_SOC,
                 type_person: user.type_person,
                 cell_phone: `${dataUpdate.phoneCaract} ${dataUpdate.numberPhone}`,
                 type_document: parseInt(dataUpdate.document_type),
@@ -619,8 +618,8 @@ const getUserxNumCustomer = async (num) => {
         })
         let responseData
         if (!user) {
+            console.log('no encontro un usuario')
             user = await Persona_x_COD_SOC(num)
-            console.log(user)
             if (user[0].TIP_PERSO === 1) {
                 responseData = { name: '', last_name: user[0].APELLIDOS }
             } else {

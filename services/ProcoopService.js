@@ -8,7 +8,7 @@ const { db } = require('../models');
 
 const conexionProcoop = async () => {
     try {
-        await SequelizeOncativo.authenticate();
+        await SequelizeMorteros.authenticate();
         console.log('CONEXIÓN EXITOSA');
     } catch (error) {
         console.error('ERROR DE MIERDACOOP:', error);

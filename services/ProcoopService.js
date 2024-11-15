@@ -1,4 +1,4 @@
-const { QueryTypes } = require('sequelize')
+const { QueryTypes, Op } = require('sequelize')
 const {
     SequelizeMorteros,
     SequelizeOncativo,
@@ -81,13 +81,23 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
     try {
         if (!numberCustomer) throw new Error('falta pasar el numero de socio')
         const user = await db.Person.findOne({
-            where: { number_customer: numberCustomer },
-            include: [
-                { association: 'Person_physical' },
-                { association: 'Person_legal' },
-            ],
+            where: {
+                number_customer: numberCustomer,
+                procoop_last_name: { [Op.not]: '' },
+            },
         })
-        if (user) return user.get()
+        if (user) {
+            const formattData = {
+                id: user.id,
+                APELLIDOS: user.procoop_last_name,
+                EMAIL: user.email,
+                COD_SIT: user.situation_tax,
+                TELEFONO: user.fixed_phone,
+                TIP_DNI: user.type_document,
+                NUM_DNI: user.number_document,
+            }
+            return formattData
+        }
         const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
         const result = await SequelizeOncativo.query(query, {
             replacements: { numberCustomer: numberCustomer },
@@ -96,7 +106,7 @@ const Persona_x_COD_SOC = async (numberCustomer) => {
         if (result.length === 0) {
             throw new Error('No se encontro socio')
         }
-        const query2 = `SELECT * FROM personas WHERE COD_PER = ${result[0].cod_per}`
+        const query2 = `SELECT * FROM personas WHERE COD_PER = ${result[0].COD_PER}`
         const result2 = await SequelizeOncativo.query(query2, {
             type: QueryTypes.SELECT,
         })
@@ -218,9 +228,9 @@ const debtsCustomer = async (number, all = false) => {
     try {
         const query = `SELECT  dd.ID_FAC, dd.COD_COM,  dd.SUC_COM, fa.pagado, dd.NUM_COM, dd.TIPO, dd.FECHA, dd.COD_SOC, dd.COD_PER, dd.COD_SUM,
                   dd.VTO1, dd.TOTAL1, dd.VTO2, dd.TOTAL2, dd.PAGA, dd.FECHASALDO, dd.SALDO, dd.PERIODO, tf.NUMERO, dd.DEB_CRE
-                  FROM  pr_mt_nueva_demo.dbo.datos_deuda dd 
-                  LEFT JOIN pr_mt_nueva_demo.dbo.talonfac tf ON dd.id_fac = tf.Id_Fac
-                  INNER JOIN pr_mt_nueva_demo.dbo.facturas fa ON fa.id_fac = dd.Id_Fac 
+                  FROM  datos_deuda dd 
+                  LEFT JOIN talonfac tf ON dd.id_fac = tf.Id_Fac
+                  INNER JOIN facturas fa ON fa.id_fac = dd.Id_Fac 
                   WHERE dd.cod_soc = :number AND dd.FECHA  >= Dateadd(mm,-13,Getdate()) ${
                       all ? '' : 'AND dd.SALDO != 0'
                   } 
@@ -343,7 +353,9 @@ const getOrCreateProcoopMember = async (body, user) => {
                         last_name: last_name_customer,
                         type_dni: dataProcoop.TIP_DNI,
                         num_dni: dataProcoop.NUM_DNI,
-                        born_date: new Date(`${dataProcoop.FEC_NAC} `),
+                        born_date: dataProcoop.FEC_NAC
+                            ? new Date(`${dataProcoop.FEC_NAC} `)
+                            : null,
                         blood_type: dataProcoop.GRU_SGR,
                         factor: dataProcoop.FAC_SGR,
                         donor: dataProcoop.DAD_SGR,

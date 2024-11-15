@@ -6,25 +6,29 @@ const config = require('../config/config')
 //     port: config.coopm_v1.port,
 //     dialect: config.coopm_v1.dialect
 // })
-const sequelizeCoopm_v2 = new Sequelize(config.coopm_v2.database, config.coopm_v2.username, config.coopm_v2.password, {
-	host: config.coopm_v2.host,
-	port: config.coopm_v2.port,
-	dialect: config.coopm_v2.dialect,
-})
+const sequelizeOv_cesopol = new Sequelize(
+    config.ov_cesopol.database,
+    config.ov_cesopol.username,
+    config.ov_cesopol.password,
+    {
+        host: config.ov_cesopol.host,
+        port: config.ov_cesopol.port,
+        dialect: config.ov_cesopol.dialect,
+    }
+)
 
 async function testConnection() {
-	try {
-		await sequelizeCoopm_v1.authenticate()
-		await sequelizeCoopm_v2.authenticate()
-		console.log('Connection has been established successfully.')
-	} catch (error) {
-		console.error('Unable to connect to the database:', error)
-	}
+    try {
+        await sequelizeOv_cesopol.authenticate()
+        console.log('Connection has been established successfully.')
+    } catch (error) {
+        console.error('Unable to connect to the database:', error)
+    }
 }
 
 module.exports = {
-	// sequelizeCoopm_v1,
-	sequelizeCoopm_v2,
-	QueryTypes,
-	testConnection,
+    // sequelizeCoopm_v1,
+    sequelizeOv_cesopol,
+    QueryTypes,
+    testConnection,
 }

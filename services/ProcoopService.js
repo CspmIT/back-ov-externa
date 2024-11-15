@@ -1,4 +1,4 @@
-const { QueryTypes } = require('sequelize')
+const { QueryTypes, Op } = require('sequelize')
 const {
     SequelizeMorteros,
     SequelizeOncativo,
@@ -80,6 +80,24 @@ const invoicesXsocio = async (id_procoop) => {
 const Persona_x_COD_SOC = async (numberCustomer) => {
     try {
         if (!numberCustomer) throw new Error('falta pasar el numero de socio')
+        const user = await db.Person.findOne({
+            where: {
+                number_customer: numberCustomer,
+                procoop_last_name: { [Op.not]: '' },
+            },
+        })
+        if (user) {
+            const formattData = {
+                id: user.id,
+                APELLIDOS: user.procoop_last_name,
+                EMAIL: user.email,
+                COD_SIT: user.situation_tax,
+                TELEFONO: user.fixed_phone,
+                TIP_DNI: user.type_document,
+                NUM_DNI: user.number_document,
+            }
+            return formattData
+        }
         const query = `SELECT * FROM socios  WHERE cod_soc = :numberCustomer`
         const result = await SequelizeOncativo.query(query, {
             replacements: { numberCustomer: numberCustomer },
@@ -335,7 +353,9 @@ const getOrCreateProcoopMember = async (body, user) => {
                         last_name: last_name_customer,
                         type_dni: dataProcoop.TIP_DNI,
                         num_dni: dataProcoop.NUM_DNI,
-                        born_date: new Date(`${dataProcoop.FEC_NAC} `),
+                        born_date: dataProcoop.FEC_NAC
+                            ? new Date(`${dataProcoop.FEC_NAC} `)
+                            : null,
                         blood_type: dataProcoop.GRU_SGR,
                         factor: dataProcoop.FAC_SGR,
                         donor: dataProcoop.DAD_SGR,

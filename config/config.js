@@ -1,18 +1,10 @@
 require('dotenv').config() // Para cargar las variables de entorno desde un archivo .env
 
 module.exports = {
-    coopm_v1: {
+    ov_cesopol: {
         username: process.env.DB_USER,
         password: process.env.DB_PASS,
-        database: 'coopm_v1',
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
-    },
-    coopm_v2: {
-        username: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: 'coopm_v2',
+        database: 'ov_cesopol',
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 3306,
         dialect: 'mysql',

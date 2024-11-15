@@ -1,4 +1,5 @@
 const { db } = require('../models/index.js')
+const { listState } = require('../services/locationServices.js')
 const {
     connexionProcoop,
     userOncativoGet,
@@ -72,16 +73,24 @@ async function getAllStreet(req, res) {
 async function migrationCity(req, res) {
     try {
         const listCities = await ListCityProcoop()
+        const listProvinces = await listState()
         let citiesOfi = []
         if (listCities) {
-            citiesOfi = await listCities.map((item) => {
-                return {
-                    cod_loc: item.COD_LOC,
-                    des_loc: item.DES_LOC,
-                    cod_pos: item.COD_POS,
-                    cod_pci: item.COD_PCI,
+            citiesOfi = await listCities.reduce((acc, item) => {
+                const findProvince = listProvinces.find(
+                    (province) => province.cod_pro === item.COD_PCI
+                )
+
+                if (findProvince) {
+                    acc.push({
+                        cod_loc: item.COD_LOC,
+                        des_loc: item.DES_LOC,
+                        cod_pos: item.COD_POS,
+                        cod_pci: findProvince.dataValues.id,
+                    })
                 }
-            })
+                return acc
+            }, [])
         }
         const resultadd = await db.City.bulkCreate(citiesOfi)
         return res.status(200).json(resultadd)

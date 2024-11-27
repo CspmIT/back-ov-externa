@@ -9,19 +9,18 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER,
             },
+            procoop_number: {
+                type: Sequelize.BIGINT,
+                allowNull: false,
+            },
+            procoop_last_name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
             id_user: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: 'Users', // nombre de la tabla relacionada
-                    key: 'id',
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'SET NULL',
-            },
-            id_person: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: 'People', // nombre de la tabla relacionada
                     key: 'id',
                 },
                 onUpdate: 'CASCADE',

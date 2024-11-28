@@ -76,7 +76,7 @@ router.get('/getConsumo', customerConsumption)
 router.get('/facturas', getInvoice)
 router.get('/existinvoice', existInvoice)
 // router.get('/pruebaMigration', migrator1Up)
-router.get('/MigrationLocation', migrationCity)
+// router.get('/MigrationLocation', migrationCity)
 
 router.get('/testConect', testConect)
 router.post('/searchDni', searchByDNI)

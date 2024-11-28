@@ -32,7 +32,7 @@ const signToken = (user, remember) => {
         exp: new Date(remember ? dateYear : dateHour).getTime(),
         name: user.name_register,
         lastName: user.last_name_register,
-        number_customer: user.number_customer,
+        number_customer: user.number_customer, // Si es un usuario nuevo el dato es undefined
         level: user.level,
         TypeUser: user.type_person,
         dark: user.dark,
@@ -88,6 +88,10 @@ const login = async (email, password, remember) => {
         const isMatch = await bcrypt.compare(password, hash)
         if (!isMatch) {
             throw new Error('El usuario o la contraseña son incorrectas')
+        }
+        if (user.id_person_profile === null) {
+            user.level = 1
+            return signToken(user, remember)
         }
         const dataPeople = await getLevel(user.id)
         let accountPrimary

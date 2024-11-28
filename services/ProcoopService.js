@@ -498,11 +498,6 @@ const allAccount = async (id) => {
     try {
         const users_procoop = await db.User_People.findAll({
             where: { id_user: id },
-            include: [
-                {
-                    association: 'data_Person',
-                },
-            ],
         })
         const result = users_procoop.map((user) => user.get({ plain: true }))
         return result

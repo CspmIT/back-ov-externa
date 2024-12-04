@@ -29,19 +29,12 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: 'id',
                 as: 'Person_Address',
             })
-            Person.hasMany(models.User_People, {
-                foreignKey: 'id_person',
-                targetKey: 'id',
-                as: 'User_People',
-            })
             // Person.hasMany(models.Service_Request, { foreignKey: 'id_person', targetKey: 'id', as: 'Service_Request' })
         }
     }
     Person.init(
         {
-            procoop_last_name: DataTypes.STRING,
             email: DataTypes.STRING,
-            number_customer: DataTypes.INTEGER,
             type_person: DataTypes.INTEGER,
             situation_tax: DataTypes.INTEGER,
             fixed_phone: DataTypes.STRING,

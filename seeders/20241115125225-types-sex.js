@@ -9,21 +9,21 @@ module.exports = {
             [
                 {
                     description: 'FEMENINO',
-                    proccopName: 'F',
+                    procoopName: 'F',
                     status: 1,
                     createdAt: date,
                     updatedAt: date,
                 },
                 {
                     description: 'MASCULINO',
-                    proccopName: 'M',
+                    procoopName: 'M',
                     status: 1,
                     createdAt: date,
                     updatedAt: date,
                 },
                 {
                     description: 'NO BINARIO',
-                    proccopName: 'B',
+                    procoopName: 'B',
                     status: 1,
                     createdAt: date,
                     updatedAt: date,

@@ -4,6 +4,7 @@ const {
     connexionProcoop,
     userOncativoGet,
     getAllProcoop,
+    findCustomerByCodSoc,
 } = require('../services/ProcoopService.js')
 const {
     ListCityProcoop,
@@ -122,7 +123,7 @@ async function migrationState(req, res) {
 async function getNameCustomer(req, res) {
     try {
         const { customer } = req.body
-        const result = await Persona_x_COD_SOC(customer)
+        const result = await findCustomerByCodSoc(customer)
         return res.status(200).json(result)
     } catch (error) {
         return res.status(400).json({ message: error.message })

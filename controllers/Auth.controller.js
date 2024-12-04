@@ -76,11 +76,11 @@ const register = async (req, res) => {
             email,
             type_person: typePerson,
             password: pass,
-            name_register: name,
+            name_register: name.toUpperCase(),
             token_temp: tokenTemp,
         }
         if (parseInt(typePerson) === 1) {
-            data.last_name_register = last_name
+            data.last_name_register = last_name.toUpperCase()
         } else {
             data.last_name_register = ''
         }

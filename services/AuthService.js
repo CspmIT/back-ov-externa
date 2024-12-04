@@ -6,7 +6,7 @@ const { db, db_coopm_v1, changeSchema } = require('../models')
 const { Sequelize } = require('sequelize')
 const { sendEmail } = require('./EmailServices')
 const { getLevel } = require('./UserService')
-const { getDataProcoopxId } = require('./ProcoopService')
+const { getDataProcoopxId, findCustomerByCodSoc } = require('./ProcoopService')
 
 const secret = process.env.SECRET
 
@@ -96,19 +96,18 @@ const login = async (email, password, remember) => {
         const dataPeople = await getLevel(user.id)
         let accountPrimary
         if (dataPeople) {
-            accountPrimary = dataPeople.filter((item) => {
-                let data = item.get()
-                if (data.primary_account === true) {
-                    return item
-                }
-            })
+            accountPrimary = dataPeople
+                .filter((item) => {
+                    let data = item.get()
+                    if (data.primary_account === true) {
+                        return item
+                    }
+                })
+                .shift()
         }
-        user.level = accountPrimary[0]?.level || 1
-        if (accountPrimary[0]) {
-            const number_customer = await getDataProcoopxId(
-                accountPrimary[0].id_person
-            )
-            user.number_customer = number_customer.number_customer
+        user.level = accountPrimary?.level || 1
+        if (accountPrimary) {
+            user.number_customer = accountPrimary.procoop_number
         }
         return signToken(user, remember)
     } catch (error) {

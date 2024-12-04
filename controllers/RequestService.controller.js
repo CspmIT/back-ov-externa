@@ -82,11 +82,14 @@ const firstStepData = async (req, res) => {
     try {
         const { id } = req.user
         const { person, serviceRequest } = req.body
+
         const isValid = PersonRequestSchema.safeParse(person)
         if (!isValid.success) {
             throw new Error(isValid.error.issues.map((error) => error.message))
         }
+
         const result = await saveFirstStepData(id, person, serviceRequest)
+
         res.status(200).json({
             message: 'Datos guardados correctamente',
             data: result,

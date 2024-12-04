@@ -1,7 +1,8 @@
-const { Op } = require('sequelize')
+const { Op, where } = require('sequelize')
 const { db } = require('../models')
 const { formatDate } = require('../utils/date/date')
-const { Persona_x_COD_SOC } = require('./ProcoopService')
+const { Persona_x_COD_SOC, findCustomerByCodSoc } = require('./ProcoopService')
+const { procoop } = require('../config/config')
 
 const getUserxId = async (id) => {
     try {
@@ -369,6 +370,266 @@ const createAddressUser = async (dataUpdate, PersonData, t) => {
         throw error
     }
 }
+
+const createPerson = async (data, t) => {
+    try {
+        const person = await db.Person.create(data, { transaction: t })
+        return person
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const updatePersonByNumberDocument = async (data) => {
+    const t = await db.sequelize.transaction()
+    try {
+        const person = await db.Person.findOne({
+            where: { number_document: data.number_document },
+        })
+        if (!person) throw new Error('La persona no existe')
+        await person.update(data, { transaction: t })
+        await t.commit()
+        return person
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const createPhysicalIfNotExists = async (
+    data,
+    person,
+    user,
+    customerProcoop,
+    t
+) => {
+    try {
+        const physical = await db.Person_physical.create(
+            {
+                name: user.name_register,
+                last_name: user.last_name_register,
+                type_dni: data.document_type,
+                num_dni: data.document_number,
+                born_date: formatDate(data.birthdate),
+                id_type_sex: data.sex,
+                id_person: person.id,
+            },
+            { transaction: t }
+        )
+
+        // Creo la direccion y la realaciono a Person Adress
+        const address = await db.Address.create(
+            {
+                number_address: data.number_address,
+                id_street: data.id_street,
+                id_city: data.id_city,
+                id_state: data.id_state,
+            },
+            { transaction: t }
+        )
+
+        await db.Person_Address.create(
+            {
+                status: true,
+                id_person: person.id,
+                id_address: address.id,
+            },
+            { transaction: t }
+        )
+
+        // Creo la relacion de User_People
+        const userPeople = await db.User_People.create(
+            {
+                procoop_number: data.number_customer,
+                procoop_last_name: customerProcoop[0].APELLIDOS,
+                id_user: user.id,
+                level: data.level,
+                primary_account: true,
+                status: 1,
+            },
+            { transaction: t }
+        )
+
+        return {
+            person,
+            physical,
+            userPeople,
+        }
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const createLegalIfNotExists = async (data, user) => {
+    const t = await db.sequelize.transaction()
+    try {
+        const legal = await db.Person_legal.create(
+            {
+                social_raeson: user.name_register,
+                fantasy_name: user.last_name_register,
+                cuit: data.document_number,
+                date_registration: formatDate(data.birthdate),
+            },
+            { transaction: t }
+        )
+
+        // Creo la direccion y la realaciono a Person Adress
+        const address = await db.Address.create(
+            {
+                number_address: data.number_address,
+                id_street: data.id_street,
+                id_city: data.id_city,
+                id_state: data.id_state,
+            },
+            { transaction: t }
+        )
+
+        await db.Person_Address.create(
+            {
+                status: true,
+                id_person: person.id,
+                id_address: address.id,
+            },
+            { transaction: t }
+        )
+
+        // Creo la relacion de User_People
+        const userPeople = await db.User_People.create(
+            {
+                procoop_number: data.number_customer,
+                procoop_last_name: customerProcoop[0].APELLIDOS,
+                id_user: user.id,
+                level: data.level,
+                primary_account: true,
+                status: 1,
+            },
+            { transaction: t }
+        )
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const existAccountInUser = async (num_soc, user_id) => {
+    const user = await db.User_People.findOne({
+        where: { procoop_number: num_soc, id_user: user_id },
+    })
+    return user
+}
+
+const addOtherCustomerService = async (customer, user, current = false) => {
+    const t = await db.sequelize.transaction()
+    try {
+        const customerProcoop = await findCustomerByCodSoc(
+            customer.num_customer
+        )
+
+        if (!customerProcoop) throw new Error('El socio no existe')
+        if (await existAccountInUser(customer.num_customer, user.id))
+            throw new Error('El socio ya esta relacionado con el usuario')
+        const otherCustomer = await db.User_People.create(
+            {
+                procoop_number: customer.num_customer,
+                procoop_last_name: customerProcoop[0].APELLIDOS,
+                id_user: user.id,
+                level: customer.level,
+                primary_account: current ? true : false,
+                status: 1,
+            },
+            { transaction: t }
+        )
+
+        if (current) {
+            const userPeople = await db.User_People.findOne({
+                where: { id_user: user.id, primary_account: true },
+            })
+            if (!userPeople)
+                throw new Error('Este usuario no tiene una cuenta principal')
+            userPeople.primary_account = false
+            await userPeople.save({ transaction: t })
+        }
+
+        await t.commit()
+        return otherCustomer
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
+const levelUp = async (data) => {
+    const t = await db.sequelize.transaction()
+    try {
+        const user = await db.User.findOne({
+            where: { id: data.id },
+        })
+        if (!user) throw new Error('El usuario no existe')
+        const customerProcoop = await findCustomerByCodSoc(data.number_customer)
+        if (!customerProcoop) throw new Error('El socio no existe')
+        const person = await db.Person.findOne({
+            where: { number_document: data.document_number },
+        })
+        // Si no existe la persona, se crea
+        let people
+        if (!person) {
+            people = await createPerson(
+                {
+                    email: user.email,
+                    type_person: user.type_person,
+                    cell_phone: `${data.phoneCaract} ${data.numberPhone}`,
+                    type_document: data.document_type,
+                    number_document: data.document_number,
+                },
+                t
+            )
+
+            await user.update(
+                { id_person_profile: people.id },
+                { transaction: t }
+            )
+
+            if (user.type_person === 1) {
+                const { person, physical, userPeople } =
+                    await createPhysicalIfNotExists(
+                        data,
+                        people,
+                        user,
+                        customerProcoop,
+                        t
+                    )
+                await t.commit()
+                return { person, physical, userPeople, user }
+            } // Falta crear la persona legal
+        } else {
+            //Agrego el id de la persona al usuario
+            await user.update(
+                { id_person_profile: person.id },
+                { transaction: t }
+            )
+            // Si la persona existe, solo creo la relacion con userPeople
+            const userPeople = await db.User_People.create(
+                {
+                    procoop_number: data.number_customer,
+                    procoop_last_name: customerProcoop[0].APELLIDOS,
+                    id_user: user.id,
+                    level: data.level,
+                    primary_account: true,
+                    status: 1,
+                },
+                { transaction: t }
+            )
+            await t.commit()
+            return { person, userPeople, user }
+        }
+    } catch (error) {
+        await t.rollback()
+        throw error
+    }
+}
+
 const updateLvl2 = async (user, dataUpdate) => {
     return db.sequelize.transaction(async (t) => {
         try {
@@ -419,28 +680,6 @@ const updateLvl2 = async (user, dataUpdate) => {
                         dataProcoop,
                         t
                     )
-                    // SE DEBE CREAR LA RELACION ENTRE EL USUARIO Y PERSONA CARGANDO ESTE OBJETO EN LA TABLA DE USER_PERSON
-                    // const relationPerson = {
-                    //     id_person: personProcoop.id,
-                    //     id_user: user.id,
-                    //     level: dataUpdate.level,
-                    //     primary_account: true,
-                    //     status: true,
-                    // }
-                    // const [relationProcoop, createRelation] =
-                    //     await db.User_People.findOrCreate({
-                    //         where: {
-                    //             id_user: user.id,
-                    //             id_person: PersonUser.id,
-                    //         },
-                    //         defaults: { ...relationPerson },
-                    //         transaction: t,
-                    //     })
-                    // // EN CASO DE QUE SE ENCUENTRE UN REGISTRO CON ESOS VALORES SE ACTUALIZA EL REGISTRO
-                    // if (!createRelation)
-                    //     await relationProcoop.update(relationPerson, {
-                    //         transaction: t,
-                    //     })
                     await createAddressUser(dataUpdate, PersonUser, t)
                 } else {
                     // EN CASO DE QUE LOS DNI SEAN IGUALES DEBO CREAR UN SOLO REGISTRO DE PERSONA CON LOS DATOS CARGADOS POR EL USUARIO
@@ -511,6 +750,7 @@ const updateLvl2 = async (user, dataUpdate) => {
         }
     })
 }
+
 const getLevel = async (id) => {
     try {
         const data = await db.User_People.findAll({ where: { id_user: id } })
@@ -608,42 +848,14 @@ const getUserxDni = async (dni) => {
 }
 const getUserxNumCustomer = async (num) => {
     try {
-        user = await db.Person.findOne({
-            where: {
-                number_customer: num,
-                procoop_last_name: { [Op.not]: '' },
-            },
-            include: [
-                {
-                    association: 'Person_physical',
-                },
-                { association: 'Person_legal' },
-            ],
-        })
         let responseData
-        if (!user) {
-            console.log('no encontro un usuario')
-            user = await Persona_x_COD_SOC(num)
-            if (user[0].TIP_PERSO === 1) {
-                responseData = { name: '', last_name: user[0].APELLIDOS }
-            } else {
-                responseData = {
-                    social_raeson: user[0].APELLIDOS,
-                    fantasy_name: user[0].NOMBRES,
-                }
-            }
+        let user = await findCustomerByCodSoc(num)
+        if (user[0].tip_perso === 1) {
+            responseData = { name: '', last_name: user[0].APELLIDOS }
         } else {
-            if (user.Person_legal) {
-                responseData = {
-                    social_raeson: user.Person_legal.social_raeson,
-                    fantasy_name: user.Person_legal.fantasy_name,
-                }
-            }
-            if (user.Person_physical) {
-                responseData = {
-                    name: user.Person_physical.name,
-                    last_name: user.Person_physical.last_name,
-                }
+            responseData = {
+                social_raeson: user[0].APELLIDOS,
+                fantasy_name: user[0].NOMBRES,
             }
         }
         if (!user) throw new Error('El numero de socio no existe')
@@ -708,4 +920,6 @@ module.exports = {
     getUsersRegistered,
     getProfileUser,
     getUserxId,
+    levelUp,
+    addOtherCustomerService,
 }

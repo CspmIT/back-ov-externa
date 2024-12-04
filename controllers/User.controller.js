@@ -1,3 +1,4 @@
+const { customerSchema } = require('../schemas/LevelUp/customer.schema.js')
 const {
     savePerson,
     savePersonLegal,
@@ -5,9 +6,7 @@ const {
 } = require('../services/PersonService.js')
 const {
     Persona_x_COD_SOC,
-    getProcoopMemberxDni,
     allAccount,
-    getDataProcoopxId,
 } = require('../services/ProcoopService.js')
 const ScriptService = require('../services/ScriptService.js')
 const {
@@ -21,16 +20,14 @@ const {
     getUsersRegistered,
     getProfileUser,
     getUserxId,
-    verifylTokenPass,
+    levelUp,
+    addOtherCustomerService,
 } = require('../services/UserService.js')
 const {
-    searchAddressxUser,
     saveAdrress,
     savePersonAdrress,
 } = require('../services/locationServices.js')
 const bcrypt = require('bcrypt')
-
-const user = (req, res) => {}
 
 async function migrationUser(req, res) {
     try {
@@ -167,8 +164,80 @@ async function dataUserProfile(req, res) {
         }
     }
 }
+function textToNumber(text) {
+    const number = parseInt(text)
+    if (isNaN(number)) {
+        throw new Error('El valor no se puede convertir a número')
+    }
+    return number
+}
+async function addCustomerUser(req, res) {
+    try {
+        const {
+            number_customer,
+            name_customer,
+            document_type,
+            document_number,
+            sex,
+            id_state,
+            id_city,
+            id_street,
+            number_address,
+            phoneCaract,
+            numberPhone,
+            birthdate,
+            id,
+            level,
+        } = req.body
+
+        const user = {
+            id,
+            level,
+            name_customer,
+            number_customer: textToNumber(number_customer),
+            document_type: textToNumber(document_type),
+            document_number: textToNumber(document_number),
+            sex: textToNumber(sex),
+            id_state: textToNumber(id_state),
+            id_city: textToNumber(id_city),
+            id_street: textToNumber(id_street),
+            number_address: textToNumber(number_address),
+            phoneCaract: textToNumber(phoneCaract),
+            numberPhone: textToNumber(numberPhone),
+            birthdate,
+        }
+
+        const validCustomer = customerSchema.safeParse(user)
+        if (!validCustomer.success) {
+            throw new Error(validCustomer.error)
+        }
+
+        const saveCustomer = await levelUp(validCustomer.data)
+        console.log(saveCustomer)
+
+        return res.status(200).json(saveCustomer)
+    } catch (error) {
+        res.status(400).json(error.message)
+    }
+}
+
+async function addOtherCustomer(req, res) {
+    try {
+        const { num_customer, last_name_customer } = req.body
+        const customer = { num_customer, last_name_customer, level: 2 }
+        const { id } = req.user
+        const user = await getUser(id)
+        const result = await addOtherCustomerService(customer, user)
+        console.log(result)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(400).json(error.message)
+    }
+}
+
 async function upgradeUser(req, res) {
     try {
+        return res.status(503).message('En etapa de desarrollo')
         const user = await getUser(req.user.id)
         if (!user)
             throw new Error('El usuario no existe o ya ha sido validado.')
@@ -368,4 +437,6 @@ module.exports = {
     dataUserProfile,
     updateProfile,
     updatePhotoProfile,
+    addCustomerUser,
+    addOtherCustomer,
 }

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     State.init(
         {
-            cod_pro: DataTypes.BIGINT,
+            cod_pro: DataTypes.INTEGER,
             des_pro: DataTypes.STRING,
             cod_afip: DataTypes.STRING,
         },

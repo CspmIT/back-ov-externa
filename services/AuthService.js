@@ -6,7 +6,7 @@ const { db, db_coopm_v1, changeSchema } = require('../models')
 const { Sequelize } = require('sequelize')
 const { sendEmail } = require('./EmailServices')
 const { getLevel } = require('./UserService')
-const { getDataProcoopxId } = require('./ProcoopService')
+const { getDataProcoopxId, findCustomerByCodSoc } = require('./ProcoopService')
 
 const secret = process.env.SECRET
 
@@ -32,7 +32,7 @@ const signToken = (user, remember) => {
         exp: new Date(remember ? dateYear : dateHour).getTime(),
         name: user.name_register,
         lastName: user.last_name_register,
-        number_customer: user.number_customer,
+        number_customer: user.number_customer, // Si es un usuario nuevo el dato es undefined
         level: user.level,
         TypeUser: user.type_person,
         dark: user.dark,
@@ -89,22 +89,25 @@ const login = async (email, password, remember) => {
         if (!isMatch) {
             throw new Error('El usuario o la contraseña son incorrectas')
         }
+        if (user.id_person_profile === null) {
+            user.level = 1
+            return signToken(user, remember)
+        }
         const dataPeople = await getLevel(user.id)
         let accountPrimary
         if (dataPeople) {
-            accountPrimary = dataPeople.filter((item) => {
-                let data = item.get()
-                if (data.primary_account === true) {
-                    return item
-                }
-            })
+            accountPrimary = dataPeople
+                .filter((item) => {
+                    let data = item.get()
+                    if (data.primary_account === true) {
+                        return item
+                    }
+                })
+                .shift()
         }
-        user.level = accountPrimary[0]?.level || 1
-        if (accountPrimary[0]) {
-            const number_customer = await getDataProcoopxId(
-                accountPrimary[0].id_person
-            )
-            user.number_customer = number_customer.number_customer
+        user.level = accountPrimary?.level || 1
+        if (accountPrimary) {
+            user.number_customer = accountPrimary.procoop_number
         }
         return signToken(user, remember)
     } catch (error) {

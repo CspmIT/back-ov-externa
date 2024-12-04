@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
             number_address: DataTypes.STRING,
             floor: DataTypes.STRING,
             dpto: DataTypes.INTEGER,
-            postal_code: DataTypes.DATE,
+            postal_code: DataTypes.STRING,
             google_address: DataTypes.STRING,
             id_street: DataTypes.INTEGER,
             id_city: DataTypes.INTEGER,

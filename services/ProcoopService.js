@@ -77,6 +77,23 @@ const invoicesXsocio = async (id_procoop) => {
     }
 }
 
+const findCustomerByCodSoc = async (cod_soc) => {
+    try {
+        if (!cod_soc) throw new Error('falta pasar el numero de socio')
+        const query = `SELECT * FROM Datos_Personales WHERE COD_SOC = :numberCustomer`
+        const result = await SequelizeOncativo.query(query, {
+            replacements: { numberCustomer: cod_soc },
+            type: SequelizeOncativo.QueryTypes.SELECT,
+        })
+        if (result.length === 0) {
+            throw new Error(`No se encontro socio con el numero ${cod_soc}`)
+        }
+        return result
+    } catch (error) {
+        throw error
+    }
+}
+
 const Persona_x_COD_SOC = async (numberCustomer) => {
     try {
         if (!numberCustomer) throw new Error('falta pasar el numero de socio')
@@ -498,11 +515,6 @@ const allAccount = async (id) => {
     try {
         const users_procoop = await db.User_People.findAll({
             where: { id_user: id },
-            include: [
-                {
-                    association: 'data_Person',
-                },
-            ],
         })
         const result = users_procoop.map((user) => user.get({ plain: true }))
         return result
@@ -669,4 +681,5 @@ module.exports = {
     userOncativoGet,
     getRelationshipsProcoop,
     getAllProcoop,
+    findCustomerByCodSoc,
 }

@@ -15,10 +15,7 @@ const {
     password_recover,
     changePassword,
 } = require('../controllers/Auth.controller')
-const {
-    customerServices,
-    customerConsumption,
-} = require('../controllers/Services.controller')
+// const { customerConsumption } = require('../controllers/Services.controller')
 const {
     getInvoice,
     existInvoice,
@@ -63,14 +60,12 @@ router.post('/existToken', tokenVerify)
 // RUTAS PARA COOPTECH
 router.post('/relationUserCooptech', relationUserCooptech)
 
-router.get('/connectOncativo', testConectOncativo)
-router.get('/userOncativo', oncativoUser)
+router.get('/status', testConectOncativo)
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)
 
 //RUTAS DE SERVICIOS
-router.get('/getService', customerServices)
-router.get('/getConsumo', customerConsumption)
+// router.get('/getConsumo', customerConsumption)
 
 //RUTAS DE PAGOS
 router.get('/facturas', getInvoice)

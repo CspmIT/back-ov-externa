@@ -74,6 +74,20 @@ const generateTokenCooptech = async (email, tokenCooptech, schemaName) => {
     return jwt.sign(configSing, secret)
 }
 
+const statusApp = async () => {
+    try {
+        const statusDB = await db.ParamsApp.findOne({
+            where: { name: 'statusApp' },
+        })
+        if (!statusDB.status) {
+            throw new Error('App no disponible')
+        }
+        return statusDB
+    } catch (error) {
+        throw error
+    }
+}
+
 const login = async (email, password, remember) => {
     try {
         const user = await db.User.findOne({ where: { email: email } })
@@ -218,4 +232,5 @@ module.exports = {
     generateTokenCooptech,
     verifyRecoverTokenService,
     changePasswordService,
+    statusApp,
 }

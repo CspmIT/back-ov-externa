@@ -213,7 +213,6 @@ async function addCustomerUser(req, res) {
         }
 
         const saveCustomer = await levelUp(validCustomer.data)
-        console.log(saveCustomer)
 
         return res.status(200).json(saveCustomer)
     } catch (error) {
@@ -228,7 +227,6 @@ async function addOtherCustomer(req, res) {
         const { id } = req.user
         const user = await getUser(id)
         const result = await addOtherCustomerService(customer, user)
-        console.log(result)
         res.status(200).json(result)
     } catch (error) {
         res.status(400).json(error.message)

@@ -1,0 +1,101 @@
+[
+    {
+        "COD_SER": 1,
+        "DESCRIPCION_OFICINA": "ENERGIA ELECTRICA",
+        "COLOR": "text-green-600 dark:text-green-400",
+        "COD_CAT": 308,
+        "DESCRIPCION_CATEGORIA": "RESIDENCIAL NIVEL 1",
+        "SERVICIO_MEDIDO": true,
+        "UNIDAD_MEDIDA": "kWh"
+    },
+    {
+        "COD_SER": 1,
+        "DESCRIPCION_OFICINA": "ENERGIA ELECTRICA",
+        "COD_CAT": 180,
+        "COLOR": "text-green-600 dark:text-green-400",
+        "DESCRIPCION_CATEGORIA": "RESIDENCIAL NIVEL 2",
+        "SERVICIO_MEDIDO": true,
+        "UNIDAD_MEDIDA": "kWh"
+    },
+    {
+        "COD_SER": 1,
+        "DESCRIPCION_OFICINA": "ENERGIA ELECTRICA",
+        "COD_CAT": 871,
+        "COLOR": "text-green-600 dark:text-green-400",
+        "DESCRIPCION_CATEGORIA": "COMBINADA NIVEL 1",
+        "SERVICIO_MEDIDO": true,
+        "UNIDAD_MEDIDA": "kWh"
+    },
+    {
+        "COD_SER": 1,
+        "DESCRIPCION_OFICINA": "ENERGIA ELECTRICA",
+        "COD_CAT": 187,
+        "COLOR": "text-green-600 dark:text-green-400",
+        "DESCRIPCION_CATEGORIA": "COMBINADA NIVEL 2",
+        "SERVICIO_MEDIDO": true,
+        "UNIDAD_MEDIDA": "kWh"
+    },
+    {
+        "COD_SER": 9,
+        "DESCRIPCION_OFICINA": "AGUA NO MEDIDA",
+        "COD_CAT": 210,
+        "DESCRIPCION_CATEGORIA": "RESIDENCIAL AGUA",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-sky-600 dark:text-sky-400"
+    },
+    {
+        "COD_SER": 10,
+        "DESCRIPCION_OFICINA": "TELEFONIA FIJA",
+        "COD_CAT": 620,
+        "DESCRIPCION_CATEGORIA": "JUBILADOS",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-blue-600 dark:text-blue-400"
+    },
+    {
+        "COD_SER": 10,
+        "DESCRIPCION_OFICINA": "TELEFONIA FIJA",
+        "COD_CAT": 610,
+        "DESCRIPCION_CATEGORIA": "RESIDENCIAL",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-blue-600 dark:text-blue-400"
+    },
+    {
+        "COD_SER": 3,
+        "DESCRIPCION_OFICINA": "INTERNET",
+        "COD_CAT": 402,
+        "DESCRIPCION_CATEGORIA": "RESIDENCIAL 20MB",
+        "COLOR": "text-blue-700 dark:text-blue-500",
+        "SERVICIO_MEDIDO": false
+    },
+    {
+        "COD_SER": 4,
+        "DESCRIPCION_OFICINA": "SEPELIO",
+        "COD_CAT": 301,
+        "DESCRIPCION_CATEGORIA": "SERVICIO DE SEPELIO",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-amber-700 dark:text-amber-500"
+    },
+    {
+        "COD_SER": 4,
+        "DESCRIPCION_OFICINA": "SEPELIO",
+        "COD_CAT": 301,
+        "DESCRIPCION_CATEGORIA": "CATEGORIA UNICA S.S.",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-amber-700 dark:text-amber-500"
+    },
+    {
+        "COD_SER": 13,
+        "DESCRIPCION_OFICINA": "SERVICIOS SOCIALES",
+        "COD_CAT": 1,
+        "DESCRIPCION_CATEGORIA": "SERVICIO SOCIAL",
+        "SERVICIO_MEDIDO": false
+    },
+    {
+        "COD_SER": 11,
+        "DESCRIPCION_OFICINA": "TELEFONIA CELULAR",
+        "COD_CAT": 680,
+        "DESCRIPCION_CATEGORIA": "PLAN BASICO TELEFONIA MOVIL",
+        "SERVICIO_MEDIDO": false,
+        "COLOR": "text-blue-600 dark:text-blue-400"
+    }
+]

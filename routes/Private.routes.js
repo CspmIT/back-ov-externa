@@ -11,6 +11,7 @@ const {
     getServicesTelecomunications,
     getSituationsIva,
     migrationCity,
+    testConectOncativo,
 } = require('../controllers/Procoop.controller')
 const { createOrUpdatePeople } = require('../controllers/Person.controller')
 const {
@@ -38,7 +39,11 @@ const {
     newStreetAPi,
     newStreetProcoop,
 } = require('../controllers/Location.controller')
-const { customerServicesDetail } = require('../controllers/Services.controller')
+const {
+    getServicesCustomer,
+    getDetailConsumption,
+    getAllConsumptionsGroupedByAccount,
+} = require('../controllers/Services.controller')
 const {
     addCommentary,
     activePopups,
@@ -97,7 +102,10 @@ router.post('/addStreetProcoop', verifyToken, newStreetProcoop)
 router.post('/getAddress', verifyToken, getAddress)
 
 //Funciones de servicios
-router.post('/getDetailService', customerServicesDetail)
+router.get('/getServiceCustomer', verifyToken, getServicesCustomer)
+router.get('/getDetailConsumption', verifyToken, getDetailConsumption)
+//Obtener todoos los consumos de un socio agrupados por cuenta
+router.get('/getAllByAccount', verifyToken, getAllConsumptionsGroupedByAccount)
 
 // Funcion para recuperar toda la informacion del usuario por dni
 router.get('/searchUserxDni', verifyToken, searchUserxDni)

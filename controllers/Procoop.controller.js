@@ -1,7 +1,7 @@
 const { db } = require('../models/index.js')
+const { statusApp } = require('../services/AuthService.js')
 const { listState } = require('../services/locationServices.js')
 const {
-    connexionProcoop,
     userOncativoGet,
     getAllProcoop,
     findCustomerByCodSoc,
@@ -11,7 +11,6 @@ const {
     ListStateProcoop,
     empresaPorCuit,
     personaPorDni,
-    Persona_x_COD_SOC,
     getOrCreateProcoopMember,
     ListStreetProcoop,
     getPriceAndDescTelefonia,
@@ -19,6 +18,7 @@ const {
     getPriceAndDescInternet,
     getSituations,
     getRelationshipsProcoop,
+    conexionProcoop,
 } = require('../services/ProcoopService.js')
 const {
     updatePrimaryAccountUserProcoop,
@@ -27,10 +27,11 @@ const {
 
 async function testConectOncativo(req, res) {
     try {
-        const result = await connexionProcoop()
-        return res.status(200).json(result)
+        const result = await conexionProcoop()
+        const result2 = await statusApp()
+        return res.status(200).json({ result, result2 })
     } catch (error) {
-        return res.status(400).json({ error, msj: error.messagge })
+        return res.status(500).json(error.message)
     }
 }
 

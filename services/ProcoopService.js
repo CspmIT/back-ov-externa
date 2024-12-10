@@ -8,10 +8,12 @@ const { db } = require('../models')
 
 const conexionProcoop = async () => {
     try {
-        await SequelizeOncativo.authenticate()
-        console.log('CONEXIÓN EXITOSA')
+        const connection = await SequelizeOncativo.authenticate()
+        console.log(connection)
+        return connection
     } catch (error) {
         console.error('ERROR DE PROCOOP:', error)
+        throw error
     }
 }
 
@@ -187,7 +189,7 @@ const ListStateProcoop = async () => {
 const serviceCustomer = async (data) => {
     try {
         if (data.type !== 'COD_SOC' && data.type !== 'cod_sum') {
-            return { error: 'No se encontró la persona' }
+            return { error: 'No se puede realizar la busqueda' }
         }
         const query = `SELECT s.DES_SER, dss.ID_SERSOC,dss.COD_SER,s.DES_SER,dss.COD_CAT,dss.COD_CATSER,dss.NOMBRE_CATEGORIA,ds.COD_SUM,ds.COD_SOC, ds.DESCRI_SITIVA,
                     ds.NOMBRECALLE AS CALLECUENTA,ds.NUMERO AS ALTURACALLECUENTA,ds.PISO AS PISOCUENTA,ds.DPTO AS DPTOCUENTA,dss.NOMBRECALLE AS CALLESERVICIO,
@@ -201,15 +203,15 @@ const serviceCustomer = async (data) => {
             type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
-            return { error: 'No se encontró la persona' }
+            throw new Error('No se encontraron servicios para el socio')
         }
         return result
     } catch (error) {
-        console.error('ERROR DE PROCOOP:', error)
+        throw error
     }
 }
 
-const consumoCustomer = async (data) => {
+const consumoCustomer = async (service, account) => {
     try {
         const actualDate = new Date()
         let lastMonth = actualDate.getMonth()
@@ -222,22 +224,22 @@ const consumoCustomer = async (data) => {
             lastMonth = `0${lastMonth}`
         }
         const searchSince = `${lastMonth}/01/${lastYear}`
-        const query = `SELECT cod_ser, cod_sum, cod_med, fec_act, consumo, periodo, cod_cat,facturado, est_act FROM cons_ser 
+        const query = `SELECT cod_ser, cod_sum, cod_med, fec_act, consumo, periodo, cod_cat FROM cons_ser 
     WHERE cod_ser = :ser AND fec_act >= :since AND cod_sum = :account`
         const result = await SequelizeOncativo.query(query, {
             replacements: {
-                ser: data.ser,
+                ser: service,
                 since: searchSince,
-                account: data.account,
+                account: account,
             },
             type: SequelizeOncativo.QueryTypes.SELECT,
         })
         if (result.length === 0) {
-            return { error: 'No se encontró la persona' }
+            throw Error('No se encontraron consumos')
         }
         return result
     } catch (error) {
-        console.error('ERROR DE PROCOOP:', error)
+        return error
     }
 }
 

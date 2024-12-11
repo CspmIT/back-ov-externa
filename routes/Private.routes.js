@@ -1,29 +1,65 @@
 const express = require('express')
 const router = express.Router()
 const {
-	getNameCustomer,
-	searchByCuit,
-	searchByDNI,
-	addUserPersonMember,
-	removeUserPersonMember,
-	changePrimaryAccountUserProcoop,
-	getAllStreet,
-	getServicesTelecomunications,
-	getSituationsIva,
+    getNameCustomer,
+    searchByCuit,
+    searchByDNI,
+    addUserPersonMember,
+    removeUserPersonMember,
+    changePrimaryAccountUserProcoop,
+    getAllStreet,
+    getServicesTelecomunications,
+    getSituationsIva,
+    migrationCity,
+    testConectOncativo,
 } = require('../controllers/Procoop.controller')
 const { createOrUpdatePeople } = require('../controllers/Person.controller')
-const { dataUser, upgradeUser, updateUser, searchUserxDni, getAllAccount, searchUserxNumCustomer, dataUserProfile, updateProfile, updatePhotoProfile, usersRegistered } = require('../controllers/User.controller')
+const {
+    dataUser,
+    upgradeUser,
+    updateUser,
+    searchUserxDni,
+    getAllAccount,
+    searchUserxNumCustomer,
+    dataUserProfile,
+    updateProfile,
+    updatePhotoProfile,
+    usersRegistered,
+    addCustomerUser,
+    addOtherCustomer,
+} = require('../controllers/User.controller')
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
-const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
-const { customerServicesDetail } = require('../controllers/Services.controller')
-const { addCommentary, activePopups } = require('../controllers/Managment.controller')
-const { newRequestService, getRequestsByUser, updateServiceRequest, getRequestsData, getFormService } = require('../controllers/RequestService.controller')
+const {
+    getListState,
+    getListCity,
+    getListStreet,
+    newStreet,
+    getAddress,
+    newStreetAPi,
+    newStreetProcoop,
+} = require('../controllers/Location.controller')
+const {
+    getServicesCustomer,
+    getDetailConsumption,
+    getAllConsumptionsGroupedByAccount,
+} = require('../controllers/Services.controller')
+const {
+    addCommentary,
+    activePopups,
+} = require('../controllers/Managment.controller')
+const {
+    newRequestService,
+    getRequestsByUser,
+    updateServiceRequest,
+    getRequestsData,
+    getFormService,
+} = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber } = require('../controllers/Person.controller')
 const { paymentMethods, payLink } = require('../controllers/Payment.controller')
 
 router.get('/test', (req, res) => {
-	res.json({ message: 'Test route' })
+    res.json({ message: 'Test route' })
 })
 
 // router.get('/getUser', verifyToken)
@@ -37,6 +73,9 @@ router.get('/dataUserProfile', verifyToken, dataUserProfile)
 router.get('/activePopups', verifyToken, activePopups)
 // router.get('/localidad', migrationCity)
 // router.get('/provincia', migrationState)
+
+router.post('/levelUp', verifyToken, addCustomerUser)
+router.post('/addOtherCustomer', verifyToken, addOtherCustomer)
 
 //funciones generales del usuario
 router.post('/getCustomer', verifyToken, getNameCustomer)
@@ -63,18 +102,29 @@ router.post('/addStreetProcoop', verifyToken, newStreetProcoop)
 router.post('/getAddress', verifyToken, getAddress)
 
 //Funciones de servicios
-router.post('/getDetailService', customerServicesDetail)
+router.get('/getServiceCustomer', verifyToken, getServicesCustomer)
+router.get('/getDetailConsumption', verifyToken, getDetailConsumption)
+//Obtener todoos los consumos de un socio agrupados por cuenta
+router.get('/getAllByAccount', verifyToken, getAllConsumptionsGroupedByAccount)
 
 // Funcion para recuperar toda la informacion del usuario por dni
 router.get('/searchUserxDni', verifyToken, searchUserxDni)
 router.get('/searchUserxNumCustomer', verifyToken, searchUserxNumCustomer)
 
 // Funciones para buscar en procoop
-router.get('/searchServicesTelecomunications/:typeUser', verifyToken, getServicesTelecomunications)
+router.get(
+    '/searchServicesTelecomunications/:typeUser',
+    verifyToken,
+    getServicesTelecomunications
+)
 router.get('/getSituationsIva', verifyToken, getSituationsIva)
 
 // Funciones de Peoples
-router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
+router.post(
+    '/searchPeopleByDocumentNumber',
+    verifyToken,
+    peopleByDocumentNumber
+)
 
 router.post('/addCommentary', verifyToken, addCommentary)
 router.get('/getUsersRegistered', verifyToken, usersRegistered)

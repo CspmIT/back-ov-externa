@@ -4,7 +4,7 @@ const router = express.Router()
 const { tokenVerify, usersRegistered } = require('../controllers/User.controller')
 // const { migrator1Up } = require('../controllers/migrations.controller')
 const { login, testConect, register, verifyRecoverToken, verifyRegister, password_recover, changePassword } = require('../controllers/Auth.controller')
-const { customerServices, customerConsumption } = require('../controllers/Services.controller')
+// const { customerConsumption } = require('../controllers/Services.controller')
 const { getInvoice, existInvoice } = require('../controllers/Invoice.controller')
 const { searchByDNI, searchByCuit, migrationCity, migrationState, testConectOncativo, oncativoUser } = require('../controllers/Procoop.controller')
 const { Commentaries, addCommentary, Popups, addPopup, addInformation, Informations, addImageInformation, ImageInformations } = require('../controllers/Managment.controller')
@@ -27,14 +27,12 @@ router.post('/existToken', tokenVerify)
 router.post('/relationUserCooptech', relationUserCooptech)
 router.post('/existEmailOfivir', existEmailOfivir)
 
-router.get('/connectOncativo', testConectOncativo)
-router.get('/userOncativo', oncativoUser)
+router.get('/status', testConectOncativo)
 // router.get('/users', migrationUser)
 // router.get('/email', sendEmail)
 
 //RUTAS DE SERVICIOS
-router.get('/getService', customerServices)
-router.get('/getConsumo', customerConsumption)
+// router.get('/getConsumo', customerConsumption)
 
 //RUTAS DE PAGOS
 router.get('/facturas', getInvoice)

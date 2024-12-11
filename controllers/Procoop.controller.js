@@ -1,15 +1,16 @@
 const { db } = require('../models/index.js')
+const { statusApp } = require('../services/AuthService.js')
+const { listState } = require('../services/locationServices.js')
 const {
-    connexionProcoop,
     userOncativoGet,
     getAllProcoop,
+    findCustomerByCodSoc,
 } = require('../services/ProcoopService.js')
 const {
     ListCityProcoop,
     ListStateProcoop,
     empresaPorCuit,
     personaPorDni,
-    Persona_x_COD_SOC,
     getOrCreateProcoopMember,
     ListStreetProcoop,
     getPriceAndDescTelefonia,
@@ -17,6 +18,7 @@ const {
     getPriceAndDescInternet,
     getSituations,
     getRelationshipsProcoop,
+    conexionProcoop,
 } = require('../services/ProcoopService.js')
 const {
     updatePrimaryAccountUserProcoop,
@@ -25,10 +27,11 @@ const {
 
 async function testConectOncativo(req, res) {
     try {
-        const result = await connexionProcoop()
-        return res.status(200).json(result)
+        const result = await conexionProcoop()
+        const result2 = await statusApp()
+        return res.status(200).json({ result, result2 })
     } catch (error) {
-        return res.status(400).json({ error, msj: error.messagge })
+        return res.status(500).json(error.message)
     }
 }
 
@@ -72,16 +75,24 @@ async function getAllStreet(req, res) {
 async function migrationCity(req, res) {
     try {
         const listCities = await ListCityProcoop()
+        const listProvinces = await listState()
         let citiesOfi = []
         if (listCities) {
-            citiesOfi = await listCities.map((item) => {
-                return {
-                    cod_loc: item.COD_LOC,
-                    des_loc: item.DES_LOC,
-                    cod_pos: item.COD_POS,
-                    cod_pci: item.COD_PCI,
+            citiesOfi = await listCities.reduce((acc, item) => {
+                const findProvince = listProvinces.find(
+                    (province) => province.cod_pro === item.COD_PCI
+                )
+
+                if (findProvince) {
+                    acc.push({
+                        cod_loc: item.COD_LOC,
+                        des_loc: item.DES_LOC,
+                        cod_pos: item.COD_POS,
+                        cod_pci: findProvince.dataValues.id,
+                    })
                 }
-            })
+                return acc
+            }, [])
         }
         const resultadd = await db.City.bulkCreate(citiesOfi)
         return res.status(200).json(resultadd)
@@ -113,7 +124,7 @@ async function migrationState(req, res) {
 async function getNameCustomer(req, res) {
     try {
         const { customer } = req.body
-        const result = await Persona_x_COD_SOC(customer)
+        const result = await findCustomerByCodSoc(customer)
         return res.status(200).json(result)
     } catch (error) {
         return res.status(400).json({ message: error.message })

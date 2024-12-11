@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
             id_user: { type: DataTypes.INTEGER, allowNull: false },
             status: { type: DataTypes.TINYINT, allowNull: false },
             return_later: {
-                type: DataTypes.BOOLEAN,
+                type: DataTypes.TINYINT,
                 allowNull: false,
                 defaultValue: false,
             },

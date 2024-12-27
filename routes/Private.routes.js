@@ -47,21 +47,26 @@ const {
 const {
     addCommentary,
     activePopups,
+    Informations,
+    ImageInformations,
+    Popups,
 } = require('../controllers/Managment.controller')
-const {
-    newRequestService,
-    getRequestsByUser,
-    updateServiceRequest,
-    getRequestsData,
-    getFormService,
-} = require('../controllers/RequestService.controller')
+// const {
+//     newRequestService,
+//     getRequestsByUser,
+//     updateServiceRequest,
+//     getRequestsData,
+//     getFormService,
+// } = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber } = require('../controllers/Person.controller')
 const { paymentMethods, payLink } = require('../controllers/Payment.controller')
+const { getCredentials } = require('../controllers/Minio.controller')
 
 router.get('/test', (req, res) => {
     res.json({ message: 'Test route' })
 })
 
+router.get('/getMinio', verifyToken, getCredentials)
 // router.get('/getUser', verifyToken)
 // router.get('/newQuery', verifyToken, newQuery)
 router.get('/logout', verifyToken, logout)
@@ -118,6 +123,13 @@ router.get(
     getServicesTelecomunications
 )
 router.get('/getSituationsIva', verifyToken, getSituationsIva)
+
+//FUNCIONES PARA OBTENER INFORMACION UTIL
+router.get('/informations', verifyToken, Informations)
+router.get('/imageInformations', verifyToken, ImageInformations)
+
+// FUNCIONES PARA OBTENER POP UPS
+router.get('/getPopups', verifyToken, Popups)
 
 // Funciones de Peoples
 router.post(

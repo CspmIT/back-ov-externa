@@ -70,7 +70,7 @@ async function getInvoice(req, res) {
                         invoices[debts[i].COD_SUM].list[j].nrovoucher = voucher
                         invoices[debts[i].COD_SUM].list[j].url =
                             debts[i].TIPO === 'EN'
-                                ? `https://facturas.coopmorteros.coop/${pdf}.pdf`
+                                ? `https://oficinavirtual.oncativo.dc.cspm.net.ar/${pdf}.pdf`
                                 : invoices[debts[i].COD_SUM].list[j].url
                         //invoices[debts[i].COD_SUM].list[j].url = debts[i].TIPO === 'EN' ? debts[i].ID_FAC : invoices[debts[i].COD_SUM].list[j].url
                         invoices[debts[i].COD_SUM].list[j].amount =
@@ -94,7 +94,7 @@ async function getInvoice(req, res) {
                     period: debts[i].PERIODO,
                     vto: vto,
                     amount: total,
-                    url: `https://facturas.coopmorteros.coop/${pdf}.pdf`,
+                    url: `https://oficinavirtual.oncativo.dc.cspm.net.ar/${pdf}.pdf`,
                     status: status,
                     number: debts[i].NUMERO,
                 }

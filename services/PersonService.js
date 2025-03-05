@@ -1,3 +1,4 @@
+const { Association } = require('sequelize')
 const { db } = require('../models')
 const { personaPorDni } = require('../services/ProcoopService')
 
@@ -5,7 +6,15 @@ const { personaPorDni } = require('../services/ProcoopService')
 const getPeopleByNumberDocument = async (number_document, type_person) => {
 	try {
 		if (type_person === '1') {
-			const person = await db.Person.findOne({ where: { number_document } })
+			// Traigo la persona de la base de datos y busco la asociacion con la persona fisica
+			const person = await db.Person.findOne({
+				where: { number_document },
+				include: [
+					{
+						association: 'Person_physical',
+					},
+				],
+			})
 			if (!person) {
 				const procoopPerson = await personaPorDni(number_document)
 				if (!procoopPerson) {
@@ -16,6 +25,17 @@ const getPeopleByNumberDocument = async (number_document, type_person) => {
 			return person
 		}
 	} catch (error) {
+		throw error
+	}
+}
+
+const newOrUpdatePeople = async (people, person) => {
+	const t = await db.sequelize.transaction()
+
+	try {
+		// Creo o actualizo la persona
+	} catch (error) {
+		await t.rollback()
 		throw error
 	}
 }
@@ -60,6 +80,7 @@ const savePersonLegal = async (PersonData) => {
 }
 module.exports = {
 	getPeopleByNumberDocument,
+	newOrUpdatePeople,
 	savePerson,
 	savePersonPhysical,
 	savePersonLegal,

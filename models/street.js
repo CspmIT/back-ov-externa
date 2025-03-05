@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 	}
 	Street.init(
 		{
-			name: DataTypes.STRING,
+			name: { type: DataTypes.STRING, allowNull: false, unique: true },
 			id_api: DataTypes.BIGINT,
 			id_procoop: DataTypes.BIGINT,
 		},

@@ -25,7 +25,7 @@ const {
     testConectOncativo,
 } = require('../controllers/Procoop.controller')
 
-const { paymentMercadoPago } = require('../controllers/Payment.controller')
+const { paymentMercadoPago, webhookResponse, payCancelMp } = require('../controllers/Payment.controller')
 
 // RUTAS PARA AUTH
 router.post('/login', login)
@@ -50,6 +50,8 @@ router.post('/searchCuit', searchByCuit)
 
 //RUTAS INTERNAS
 router.get('/mercadopago', paymentMercadoPago)
+router.post('/pagoRealizado', webhookResponse)
+router.get('/pruebamp', payCancelMp)
 
 router.get('/getIp', (req, res) => {
     const networkInterfaces = os.networkInterfaces()

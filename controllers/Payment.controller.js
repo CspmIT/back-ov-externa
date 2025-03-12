@@ -1,5 +1,5 @@
 const { getIo } = require('../config/sockets')
-const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference } = require('../services/PaymentService')
+const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference, getVouchersCustomer } = require('../services/PaymentService')
 const { getProfileUser } = require('../services/UserService')
 
 const paymentMethods = async (req, res) => {
@@ -102,6 +102,16 @@ const paymentPayFun = async (req) => {
 	}
 }
 
+const voucherCustomer = async (req, res) => {
+	try {
+		const { customer } = req.query
+		const data = await getVouchersCustomer(customer)
+		return res.status(200).json(data)
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 const enviarNoti = async (req, res) => {
 	try {
 		const io = getIo()
@@ -124,5 +134,6 @@ module.exports = {
 	paymentMethods,
 	payLink,
 	paymentMercadoPago,
+	voucherCustomer,
 	enviarNoti,
 }

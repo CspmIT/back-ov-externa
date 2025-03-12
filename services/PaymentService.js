@@ -105,9 +105,9 @@ const MercadoPagoPreference = async (payment) => {
 				external_reference: payment.external_reference,
 				auto_return: 'approved',
 				back_urls: {
-					success: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
-					failure: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
-					pending: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
+					success: 'http://localhost:8082/paymentStatus/success',
+					failure: 'http://localhost:8082/paymentStatus/cancelled',
+					pending: 'http://localhost:8082/paymentStatus/pending',
 				},
 			},
 		})
@@ -121,9 +121,34 @@ const MercadoPagoPreference = async (payment) => {
 	return data
 }
 
+const getVouchersCustomer = async (customer) => {
+	try {
+		const data = await db.Pay.findAll({
+			where: {
+				customer: customer,
+				status: 1,
+			},
+			include: [
+				{
+					model: db.PaysDetail,
+					as: 'details',
+				},
+				{
+					model: db.PaysMethods,
+					as: 'method',
+				},
+			],
+		})
+		return data
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 module.exports = {
 	savePay,
 	enabledMethods,
 	payFunCheckout,
 	MercadoPagoPreference,
+	getVouchersCustomer,
 }

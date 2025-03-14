@@ -14,6 +14,9 @@ const savePay = async (data, bills) => {
 				amount: parseFloat(bill.amount).toFixed(2),
 				reference: bill.nrovoucher,
 				ss: bill.type.includes('SS') ? 1 : 0,
+				cod_com: bill.cod_com,
+				suc_com: bill.suc_com,
+				num_com: bill.num_com,
 			}
 		})
 		await db.PaysDetail.bulkCreate(details, { transaction: t })
@@ -145,10 +148,35 @@ const getVouchersCustomer = async (customer) => {
 	}
 }
 
+const billPayed = async (bill) => {
+	try {
+		const data = await db.Pay.findAll({
+			where: {
+				status: 1,
+			},
+			include: [
+				{
+					model: db.PaysDetail,
+					as: 'details',
+					where: {
+						cod_com: bill.COD_COM,
+						suc_com: bill.SUC_COM,
+						num_com: bill.NUM_COM,
+					},
+				},
+			],
+		})
+		return data.length > 0
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 module.exports = {
 	savePay,
 	enabledMethods,
 	payFunCheckout,
 	MercadoPagoPreference,
 	getVouchersCustomer,
+	billPayed,
 }

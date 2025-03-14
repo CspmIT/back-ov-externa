@@ -2,6 +2,7 @@ const axios = require('axios')
 const { db } = require('../models/index.js')
 const { debtsCustomer, phoneCustomer, accountsCustomer } = require('../services/ProcoopService.js')
 const codes = require('../utils/Procoop/serviceCode.json')
+const { billPayed } = require('../services/PaymentService.js')
 
 async function getInvoice(req, res) {
 	try {
@@ -54,10 +55,12 @@ async function getInvoice(req, res) {
 				}
 			}
 			if (!invoiceExists) {
-				var status = 1
+				var status
 				if (parseInt(debts[i].SALDO) > 0) {
 					status = 0
 				}
+				var isPayed = await billPayed(debts[i])
+				status = isPayed ? 2 : status
 				var fact = {
 					id: debts[i].ID_FAC,
 					type: debts[i].TIPO,
@@ -68,6 +71,9 @@ async function getInvoice(req, res) {
 					url: `https://oficinavirtual.oncativo.dc.cspm.net.ar/${pdf}.pdf`,
 					status: status,
 					number: debts[i].NUMERO,
+					cod_com: debts[i].COD_COM,
+					suc_com: debts[i].SUC_COM,
+					num_com: debts[i].NUM_COM,
 				}
 				invoices[debts[i].COD_SUM].list.push(fact)
 			}

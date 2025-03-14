@@ -74,6 +74,7 @@ async function getInvoice(req, res) {
 					cod_com: debts[i].COD_COM,
 					suc_com: debts[i].SUC_COM,
 					num_com: debts[i].NUM_COM,
+					checkbox: status == 2 ? false : true
 				}
 				invoices[debts[i].COD_SUM].list.push(fact)
 			}

@@ -145,7 +145,7 @@ const webhookResponse = async (req, res) => {
 const payCancelMp = async (dataId) => {
 	try {
 		const dataMp = await enabledMethods(1)
-		const { accessToken } = dataMp[0]
+		const accessToken = dataMp[0].access_token
 		const client = new MercadoPagoConfig({
 			accessToken,
 		})

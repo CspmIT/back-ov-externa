@@ -43,6 +43,11 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.INTEGER,
 			},
+			confirmed: {
+				type: Sequelize.INTEGER,
+				defaultValue: 1,
+				comment: 'Este campo es para mp ya que luego de confirmar el pago sigue enviando notificaciones del mismo',
+			},
 			message: {
 				type: Sequelize.STRING,
 			},

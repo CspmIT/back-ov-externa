@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			type_pay: DataTypes.STRING,
 			id_method: DataTypes.INTEGER,
 			status: DataTypes.INTEGER,
+			confirmed: DataTypes.INTEGER,
 			message: DataTypes.STRING,
 		},
 		{

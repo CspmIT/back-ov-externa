@@ -244,6 +244,5 @@ module.exports = {
 	voucherCustomer,
 	webhookResponse,
 	enviarNoti,
-	payCancelMp,
-	listPayments,
+	payCancelMp
 }

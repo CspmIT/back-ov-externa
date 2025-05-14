@@ -1,56 +1,38 @@
 const express = require('express')
 const router = express.Router()
 const {
-    getNameCustomer,
-    searchByCuit,
-    searchByDNI,
-    addUserPersonMember,
-    removeUserPersonMember,
-    changePrimaryAccountUserProcoop,
-    getAllStreet,
-    getServicesTelecomunications,
-    getSituationsIva,
-    migrationCity,
-    testConectOncativo,
+	getNameCustomer,
+	searchByCuit,
+	searchByDNI,
+	addUserPersonMember,
+	removeUserPersonMember,
+	changePrimaryAccountUserProcoop,
+	getAllStreet,
+	getServicesTelecomunications,
+	getSituationsIva,
+	migrationCity,
+	testConectOncativo,
 } = require('../controllers/Procoop.controller')
 const { createOrUpdatePeople } = require('../controllers/Person.controller')
 const {
-    dataUser,
-    upgradeUser,
-    updateUser,
-    searchUserxDni,
-    getAllAccount,
-    searchUserxNumCustomer,
-    dataUserProfile,
-    updateProfile,
-    updatePhotoProfile,
-    usersRegistered,
-    addCustomerUser,
-    addOtherCustomer,
+	dataUser,
+	upgradeUser,
+	updateUser,
+	searchUserxDni,
+	getAllAccount,
+	searchUserxNumCustomer,
+	dataUserProfile,
+	updateProfile,
+	updatePhotoProfile,
+	usersRegistered,
+	addCustomerUser,
+	addOtherCustomer,
 } = require('../controllers/User.controller')
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
-const {
-    getListState,
-    getListCity,
-    getListStreet,
-    newStreet,
-    getAddress,
-    newStreetAPi,
-    newStreetProcoop,
-} = require('../controllers/Location.controller')
-const {
-    getServicesCustomer,
-    getDetailConsumption,
-    getAllConsumptionsGroupedByAccount,
-} = require('../controllers/Services.controller')
-const {
-    addCommentary,
-    activePopups,
-    Informations,
-    ImageInformations,
-    Popups,
-} = require('../controllers/Managment.controller')
+const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
+const { getServicesCustomer, getDetailConsumption, getAllConsumptionsGroupedByAccount } = require('../controllers/Services.controller')
+const { addCommentary, activePopups, Informations, ImageInformations, Popups } = require('../controllers/Managment.controller')
 // const {
 //     newRequestService,
 //     getRequestsByUser,
@@ -59,11 +41,11 @@ const {
 //     getFormService,
 // } = require('../controllers/RequestService.controller')
 const { peopleByDocumentNumber } = require('../controllers/Person.controller')
-const { paymentMethods, payLink } = require('../controllers/Payment.controller')
+const { paymentMethods, payLink, voucherCustomer } = require('../controllers/Payment.controller')
 const { getCredentials } = require('../controllers/Minio.controller')
 
 router.get('/test', (req, res) => {
-    res.json({ message: 'Test route' })
+	res.json({ message: 'Test route' })
 })
 
 router.get('/getMinio', verifyToken, getCredentials)
@@ -117,11 +99,7 @@ router.get('/searchUserxDni', verifyToken, searchUserxDni)
 router.get('/searchUserxNumCustomer', verifyToken, searchUserxNumCustomer)
 
 // Funciones para buscar en procoop
-router.get(
-    '/searchServicesTelecomunications/:typeUser',
-    verifyToken,
-    getServicesTelecomunications
-)
+router.get('/searchServicesTelecomunications/:typeUser', verifyToken, getServicesTelecomunications)
 router.get('/getSituationsIva', verifyToken, getSituationsIva)
 
 //FUNCIONES PARA OBTENER INFORMACION UTIL
@@ -132,11 +110,7 @@ router.get('/imageInformations', verifyToken, ImageInformations)
 router.get('/getPopups', verifyToken, Popups)
 
 // Funciones de Peoples
-router.post(
-    '/searchPeopleByDocumentNumber',
-    verifyToken,
-    peopleByDocumentNumber
-)
+router.post('/searchPeopleByDocumentNumber', verifyToken, peopleByDocumentNumber)
 
 router.post('/addCommentary', verifyToken, addCommentary)
 router.get('/getUsersRegistered', verifyToken, usersRegistered)
@@ -144,5 +118,6 @@ router.get('/getUsersRegistered', verifyToken, usersRegistered)
 //METODOS DE PAGO
 router.get('/payMethods', verifyToken, paymentMethods)
 router.post('/payLink', verifyToken, payLink)
+router.get('/getBillsCustomer', verifyToken, voucherCustomer)
 
 module.exports = router

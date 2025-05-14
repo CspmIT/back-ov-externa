@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			this.hasMany(models.PaysDetail, { foreignKey: 'id_pay', as: 'details' })
+			this.belongsTo(models.PaysMethods, { foreignKey: 'id_method', as: 'method' })
 		}
 	}
 	Pay.init(
@@ -21,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			type_pay: DataTypes.STRING,
 			id_method: DataTypes.INTEGER,
 			status: DataTypes.INTEGER,
+			confirmed: DataTypes.INTEGER,
 			message: DataTypes.STRING,
 		},
 		{

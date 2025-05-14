@@ -14,6 +14,9 @@ const savePay = async (data, bills) => {
 				amount: parseFloat(bill.amount).toFixed(2),
 				reference: bill.nrovoucher,
 				ss: bill.type.includes('SS') ? 1 : 0,
+				cod_com: bill.cod_com,
+				suc_com: bill.suc_com,
+				num_com: bill.num_com,
 			}
 		})
 		await db.PaysDetail.bulkCreate(details, { transaction: t })
@@ -24,19 +27,39 @@ const savePay = async (data, bills) => {
 	}
 }
 
-const enabledMethods = async () => {
-	const query = {
-		include: [
-			{
-				model: db.PaysMethods,
-				attributes: ['name', 'logo'],
+const updatePay = async (id, data) => {
+	try {
+		const t = await db.sequelize.transaction()
+		const pay = await db.Pay.findOne({
+			where: {
+				id: id,
 			},
-		],
+			include: [
+				{
+					model: db.PaysDetail,
+					as: 'details',
+				},
+			],
+		})
+		if (!pay) throw new Error('No se encontró el pago')
+		await pay.update(data, { transaction: t })
+		await t.commit()
+		return pay
+	} catch (error) {
+		throw new Error(error)
+	}
+}
+
+const enabledMethods = async (id = false) => {
+	const query = {
 		where: {
-			status: true,
+			status: 1,
 		},
 	}
-	return await db.PaysMethodEnabled.findAll(query)
+	if (id) {
+		query.where.id = id
+	}
+	return await db.PaysMethods.findAll(query)
 }
 const payFunCheckout = async (data) => {
 	try {
@@ -90,7 +113,9 @@ const payFunCheckout = async (data) => {
 }
 
 const MercadoPagoPreference = async (payment) => {
-	const client = new MercadoPagoConfig({ accessToken: 'TEST-3245352482209602-041711-ac091a20ba5186ef2227ea8675f25eae-1775560306' })
+	const dataMp = await enabledMethods(1)
+	const { accessToken } = dataMp[0]
+	const client = new MercadoPagoConfig({ accessToken })
 	const preference = new Preference(client)
 	const data = await preference
 		.create({
@@ -105,9 +130,9 @@ const MercadoPagoPreference = async (payment) => {
 				external_reference: payment.external_reference,
 				auto_return: 'approved',
 				back_urls: {
-					success: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
-					failure: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
-					pending: 'https://desarrollo.coopmorteros.coop/Testjuan/mercadopago',
+					success: 'https://cesopol.cooptech.com.ar/paymentStatus/success',
+					failure: 'https://cesopol.cooptech.com.ar/paymentStatus/failure',
+					pending: 'https://cesopol.cooptech.com.ar/paymentStatus/pending',
 				},
 			},
 		})
@@ -121,9 +146,60 @@ const MercadoPagoPreference = async (payment) => {
 	return data
 }
 
+const getVouchersCustomer = async (customer) => {
+	try {
+		const data = await db.Pay.findAll({
+			where: {
+				customer: customer,
+				status: 1,
+			},
+			include: [
+				{
+					model: db.PaysDetail,
+					as: 'details',
+				},
+				{
+					model: db.PaysMethods,
+					as: 'method',
+				},
+			],
+		})
+		return data
+	} catch (e) {
+		console.log(e)
+	}
+}
+
+const billPayed = async (bill) => {
+	try {
+		const data = await db.Pay.findAll({
+			where: {
+				status: 1,
+			},
+			include: [
+				{
+					model: db.PaysDetail,
+					as: 'details',
+					where: {
+						cod_com: bill.COD_COM,
+						suc_com: bill.SUC_COM,
+						num_com: bill.NUM_COM,
+					},
+				},
+			],
+		})
+		return data.length > 0
+	} catch (e) {
+		console.log(e)
+	}
+}
+
 module.exports = {
 	savePay,
+	updatePay,
 	enabledMethods,
 	payFunCheckout,
 	MercadoPagoPreference,
+	getVouchersCustomer,
+	billPayed,
 }

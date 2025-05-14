@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
 			amount: DataTypes.DECIMAL,
 			reference: DataTypes.STRING,
 			ss: DataTypes.BOOLEAN,
+			cod_com: DataTypes.INTEGER,
+			suc_com: DataTypes.INTEGER,
+			num_com: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

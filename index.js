@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
+const http = require('http')
+const socketConfig = require('./config/sockets')
 const cookieParser = require('cookie-parser')
 // Rutas
 const publicRoutes = require('./routes/Public.routes')
@@ -23,8 +25,10 @@ app.use('/api', requestServiceRoutes)
 app.use('/api', procoopRoutes)
 //Para archivos
 app.use('/images', express.static('images'))
+const server = http.createServer(app)
+socketConfig.init(server)
 
-app.listen(4000, () => {
-    console.log('Server is running on port 4000')
-    console.log('http://localhost:4000')
+server.listen(4000, () => {
+	console.log('Server is running on port 4000')
+	console.log('http://localhost:4000')
 })

@@ -114,7 +114,7 @@ const payFunCheckout = async (data) => {
 
 const MercadoPagoPreference = async (payment) => {
 	const dataMp = await enabledMethods(1)
-	const { accessToken } = dataMp[0]
+	const accessToken = dataMp[0].access_token
 	const client = new MercadoPagoConfig({ accessToken })
 	const preference = new Preference(client)
 	const data = await preference

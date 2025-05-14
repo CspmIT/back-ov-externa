@@ -116,29 +116,52 @@ const voucherCustomer = async (req, res) => {
 }
 
 const webhookResponse = async (req, res) => {
-	const dataMp = await enabledMethods(1)
-	const secret = dataMp[0]?.dataValues?.secret
-	const xSignature = req.headers['x-signature']
-	const xRequestId = req.headers['x-request-id']
-	const queryParams = req.query
-	const dataID = queryParams.data_id
-	const parts = xSignature.split(',')
-	let ts = null
-	let hash = null
-	parts.forEach((part) => {
-		const [key, value] = part.split('=')
-		if (key === 'ts') ts = value
-		if (key === 'v1') hash = value
-	})
-	const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
-	const sha = require('crypto').createHmac('sha256', secret).update(manifest).digest('hex')
-	if (sha === hash) {
-		const proccess = await payCancelMp(dataID)
-		if (proccess) {
-			return res.status(200).json('Pago realizado')
-		} else {
-			return res.status(400).json('Error al procesar el pago')
+	try {
+		const dataMp = await enabledMethods(1)
+		const secret = dataMp[0]?.dataValues?.secret
+
+		if (!secret) {
+			return res.status(500).json({ error: 'Clave secreta no configurada' })
 		}
+
+		const xSignature = req.headers['x-signature']
+		const xRequestId = req.headers['x-request-id']
+		const queryParams = req.query
+		const dataID = queryParams.data_id
+
+		if (!xSignature || !xRequestId || !dataID) {
+			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
+		}
+
+		const parts = xSignature.split(',')
+		let ts = null
+		let hash = null
+		for (const part of parts) {
+			const [key, value] = part.split('=')
+			if (key === 'ts') ts = value
+			if (key === 'v1') hash = value
+		}
+
+		if (!ts || !hash) {
+			return res.status(400).json({ error: 'Firma inválida' })
+		}
+
+		const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
+		const sha = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
+
+		if (sha === hash) {
+			const process = await payCancelMp(dataID)
+			if (process) {
+				return res.status(200).json({ message: 'Pago realizado' })
+			} else {
+				return res.status(400).json({ error: 'Error al procesar el pago' })
+			}
+		} else {
+			return res.status(401).json({ error: 'Firma no válida' })
+		}
+	} catch (error) {
+		console.error('Error en webhook de Mercado Pago:', error)
+		return res.status(500).json({ error: 'Error interno del servidor' })
 	}
 }
 

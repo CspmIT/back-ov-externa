@@ -117,7 +117,7 @@ const voucherCustomer = async (req, res) => {
 
 const webhookResponse = async (req, res) => {
 	const dataMp = await enabledMethods(1)
-	const { secret } = dataMp[0]
+	const secret = dataMp[0]?.dataValues?.secret
 	const xSignature = req.headers['x-signature']
 	const xRequestId = req.headers['x-request-id']
 	const queryParams = req.query
@@ -145,7 +145,7 @@ const webhookResponse = async (req, res) => {
 const payCancelMp = async (dataId) => {
 	try {
 		const dataMp = await enabledMethods(1)
-		const accessToken = dataMp[0].access_token
+		const accessToken = dataMp[0]?.dataValues?.access_token
 		const client = new MercadoPagoConfig({
 			accessToken,
 		})

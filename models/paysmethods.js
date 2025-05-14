@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 			api_key: DataTypes.STRING,
 			access_token: DataTypes.STRING,
 			secret: DataTypes.STRING,
-			proocop_code: DataTypes.INTEGER,
+			procoop_code: DataTypes.INTEGER,
 			status: DataTypes.BOOLEAN,
 		},
 		{

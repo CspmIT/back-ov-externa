@@ -169,6 +169,7 @@ const payCancelMp = async (dataId) => {
 	try {
 		const dataMp = await enabledMethods(1)
 		const accessToken = dataMp[0]?.dataValues?.access_token
+		const procoopCode = dataMp[0]?.dataValues?.procoop_code
 		const client = new MercadoPagoConfig({
 			accessToken,
 		})
@@ -189,7 +190,6 @@ const payCancelMp = async (dataId) => {
 			confirmed: 1,
 		}
 		await updatePay(id, confirm)
-		return true
 		const payload = await paymentData.details.map((bill) => {
 			return {
 				cod_com: bill.cod_com,
@@ -206,7 +206,7 @@ const payCancelMp = async (dataId) => {
 		if (!data.resultado) {
 			return false
 		}
-		const requestParams = `${data.cod_pago}/${data.total_pagar}/17`
+		const requestParams = `${data.cod_pago}/${data.total_pagar}/${procoopCode}`
 		await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetAutorizarPagoSinEntidad/${requestParams}`, {
 			headers: {
 				'Content-Type': 'application/json',
@@ -245,4 +245,5 @@ module.exports = {
 	webhookResponse,
 	enviarNoti,
 	payCancelMp,
+	listPayments,
 }

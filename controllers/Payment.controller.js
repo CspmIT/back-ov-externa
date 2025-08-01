@@ -3,6 +3,7 @@ const { getIo } = require('../config/sockets')
 const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference, getVouchersCustomer, getPay, updatePay } = require('../services/PaymentService')
 const { getProfileUser } = require('../services/UserService')
 const { default: axios } = require('axios')
+const crypto = require('crypto')
 
 const paymentMethods = async (req, res) => {
 	try {
@@ -130,9 +131,7 @@ const webhookResponse = async (req, res) => {
 		const dataID = queryParams.data_id || req.body?.data?.id
 
 		if (!xSignature || !xRequestId || !dataID) {
-			console.log(dataID)
-			console.log(xRequestId)
-			console.log(xSignature)
+			console.error('Falta uno de los datos iniciales')
 			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
 		}
 
@@ -146,6 +145,7 @@ const webhookResponse = async (req, res) => {
 		}
 
 		if (!ts || !hash) {
+			console.error('Hash o ts invalidos')
 			return res.status(403).json({ error: 'Firma inválida' })
 		}
 
@@ -156,9 +156,11 @@ const webhookResponse = async (req, res) => {
 			if (process) {
 				return res.status(200).json({ message: 'Pago realizado' })
 			} else {
+				console.error('Un dato esta mal en la funcion de payCancel')
 				return res.status(400).json({ error: 'Error al procesar el pago' })
 			}
 		} else {
+			console.error('Sha y hash no son iguales')
 			return res.status(403).json({ error: 'Firma no válida' })
 		}
 	} catch (error) {

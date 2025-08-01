@@ -130,7 +130,7 @@ const webhookResponse = async (req, res) => {
 		const dataID = queryParams.data_id
 
 		if (!xSignature || !xRequestId || !dataID) {
-			return res.status(403).json({ error: 'Faltan parámetros requeridos' })
+			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
 		}
 
 		const parts = xSignature.split(',')
@@ -147,8 +147,10 @@ const webhookResponse = async (req, res) => {
 		}
 
 		const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
+		console.log(manifest)
 		const sha = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
-
+		console.log(hash)
+		console.log(sha)
 		if (sha === hash) {
 			const process = await payCancelMp(dataID)
 			if (process) {

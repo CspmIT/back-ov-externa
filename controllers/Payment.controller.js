@@ -125,11 +125,14 @@ const webhookResponse = async (req, res) => {
 		}
 
 		const xSignature = req.headers['x-signature']
-		const xRequestId = req.headers['x-request-id']
+		const xRequestId = req.headers['x-request-id'] || req.body?.id
 		const queryParams = req.query
-		const dataID = queryParams.data_id
+		const dataID = queryParams.data_id || req.body?.data?.id
 
 		if (!xSignature || !xRequestId || !dataID) {
+			console.log(dataID)
+			console.log(xRequestId)
+			console.log(xSignature)
 			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
 		}
 
@@ -147,10 +150,7 @@ const webhookResponse = async (req, res) => {
 		}
 
 		const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
-		console.log(manifest)
 		const sha = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
-		console.log(hash)
-		console.log(sha)
 		if (sha === hash) {
 			const process = await payCancelMp(dataID)
 			if (process) {

@@ -130,7 +130,7 @@ const webhookResponse = async (req, res) => {
 		const dataID = queryParams.data_id
 
 		if (!xSignature || !xRequestId || !dataID) {
-			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
+			return res.status(403).json({ error: 'Faltan parámetros requeridos' })
 		}
 
 		const parts = xSignature.split(',')
@@ -143,7 +143,7 @@ const webhookResponse = async (req, res) => {
 		}
 
 		if (!ts || !hash) {
-			return res.status(400).json({ error: 'Firma inválida' })
+			return res.status(403).json({ error: 'Firma inválida' })
 		}
 
 		const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
@@ -157,7 +157,7 @@ const webhookResponse = async (req, res) => {
 				return res.status(400).json({ error: 'Error al procesar el pago' })
 			}
 		} else {
-			return res.status(401).json({ error: 'Firma no válida' })
+			return res.status(403).json({ error: 'Firma no válida' })
 		}
 	} catch (error) {
 		console.error('Error en webhook de Mercado Pago:', error)

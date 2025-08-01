@@ -175,7 +175,7 @@ const payCancelMp = async (dataId) => {
 		})
 		const payment = new Payment(client)
 		const paymentDataMp = await payment.capture({ id: dataId })
-		const id = paymentDataMp.external_reference
+		const id = parseInt(paymentDataMp.external_reference)
 		const dataUpdate = {
 			id_external: dataId,
 			status: paymentDataMp.status === 'approved' ? 1 : 0,
@@ -244,5 +244,5 @@ module.exports = {
 	voucherCustomer,
 	webhookResponse,
 	enviarNoti,
-	payCancelMp
+	payCancelMp,
 }

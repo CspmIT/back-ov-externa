@@ -210,7 +210,7 @@ const payCancelMp = async (dataId) => {
 		if (!data.resultado) {
 			return false
 		}
-		const requestParams = `${data.cod_pago}/${data.total_pagar}/${procoopCode}`
+		const requestParams = `${data.cod_pag}/${data.total_pagar}/${procoopCode}`
 		await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetAutorizarPagoSinEntidad/${requestParams}`, {
 			headers: {
 				'Content-Type': 'application/json',

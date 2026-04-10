@@ -9,7 +9,7 @@ async function getInvoice(req, res) {
 		const { id_procoop } = req.query
 		const all = req.query.all ? true : false
 		const today = new Date()
-		const accounts = await accountsCustomer(id_procoop)
+		const accounts = await accountsCustomer(id_procoop) 
 		if (!accounts || accounts.length === 0) {
 			return res.status(404).json({ message: 'Error al buscar los datos' })
 		}

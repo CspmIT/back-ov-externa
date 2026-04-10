@@ -7,14 +7,16 @@ module.exports = (sequelize, DataTypes) => {
 		 * This method is not a part of Sequelize lifecycle.
 		 * The `models/index` file will call this method automatically.
 		 */
-		static associate(models) {
-			this.hasMany(models.PaysMethodEnabled, { foreignKey: 'id_method' })
-		}
+		static associate(models) {}
 	}
 	PaysMethods.init(
 		{
 			name: DataTypes.STRING,
 			logo: DataTypes.STRING,
+			api_key: DataTypes.STRING,
+			access_token: DataTypes.STRING,
+			secret: DataTypes.STRING,
+			procoop_code: DataTypes.INTEGER,
 			status: DataTypes.BOOLEAN,
 		},
 		{

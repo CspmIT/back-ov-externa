@@ -1,7 +1,9 @@
 const { default: MercadoPagoConfig, Payment } = require('mercadopago')
 const { getIo } = require('../config/sockets')
-const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference, getVouchersCustomer } = require('../services/PaymentService')
+const { payFunCheckout, enabledMethods, savePay, MercadoPagoPreference, getVouchersCustomer, getPay, updatePay } = require('../services/PaymentService')
 const { getProfileUser } = require('../services/UserService')
+const { default: axios } = require('axios')
+const crypto = require('crypto')
 
 const paymentMethods = async (req, res) => {
 	try {
@@ -24,6 +26,7 @@ const payLink = async (req, res) => {
 			total: data.total,
 			id_method: data.method,
 			status: 0,
+			confirmed: data.method === 1 ? 0 : 1,
 		}
 		req.id_pay = await savePay(pay, data.bills)
 		switch (data.method) {
@@ -114,37 +117,109 @@ const voucherCustomer = async (req, res) => {
 }
 
 const webhookResponse = async (req, res) => {
-	const xSignature = req.headers['x-signature']
-	const xRequestId = req.headers['x-request-id']
-	const queryParams = req.query
-	const dataID = queryParams.data_id
-	const parts = xSignature.split(',')
-	let ts = null
-	let hash = null
-	parts.forEach((part) => {
-		const [key, value] = part.split('=')
-		if (key === 'ts') ts = value
-		if (key === 'v1') hash = value
-	})
-	const secret = 'ba33249d2d35765461945b23b56afee086bcdd90ab516dd9229fc761712d40df'
-	const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
-	const sha = require('crypto').createHmac('sha256', secret).update(manifest).digest('hex')
-	if (sha === hash) {
-		payCancelMp(dataID)
+	try {
+		const dataMp = await enabledMethods(1)
+		const secret = dataMp[0]?.dataValues?.secret
+
+		if (!secret) {
+			return res.status(500).json({ error: 'Clave secreta no configurada' })
+		}
+
+		const xSignature = req.headers['x-signature']
+		const xRequestId = req.headers['x-request-id'] || req.body?.id
+		const queryParams = req.query
+		const dataID = queryParams.data_id || req.body?.data?.id
+
+		if (!xSignature || !xRequestId || !dataID) {
+			console.error('Falta uno de los datos iniciales')
+			return res.status(400).json({ error: 'Faltan parámetros requeridos' })
+		}
+
+		const parts = xSignature.split(',')
+		let ts = null
+		let hash = null
+		for (const part of parts) {
+			const [key, value] = part.split('=')
+			if (key === 'ts') ts = value
+			if (key === 'v1') hash = value
+		}
+
+		if (!ts || !hash) {
+			console.error('Hash o ts invalidos')
+			return res.status(403).json({ error: 'Firma inválida' })
+		}
+
+		const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`
+		const sha = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
+		if (sha === hash) {
+			const process = await payCancelMp(dataID)
+			if (process) {
+				return res.status(200).json({ message: 'Pago realizado' })
+			} else {
+				console.error('Un dato esta mal en la funcion de payCancel')
+				return res.status(400).json({ error: 'Error al procesar el pago' })
+			}
+		} else {
+			console.error('Sha y hash no son iguales')
+			return res.status(403).json({ error: 'Firma no válida' })
+		}
+	} catch (error) {
+		console.error('Error en webhook de Mercado Pago:', error)
+		return res.status(500).json({ error: 'Error interno del servidor' })
 	}
 }
 
-const payCancelMp = async (req, res) => {
+const payCancelMp = async (dataId) => {
 	try {
-		const dataId = 104535527709
+		const dataMp = await enabledMethods(1)
+		const accessToken = dataMp[0]?.dataValues?.access_token
+		const procoopCode = dataMp[0]?.dataValues?.procoop_code
 		const client = new MercadoPagoConfig({
-			accessToken: 'APP_USR-6180028893273834-012912-e4718b99fcaffd255c9b825a6ab3cfe5-1649301439',
+			accessToken,
 		})
 		const payment = new Payment(client)
-		const paymentData = await payment.capture({ id: dataId })
-		return res.status(200).json(paymentData)
+		const paymentDataMp = await payment.capture({ id: dataId })
+		const id = parseInt(paymentDataMp.external_reference)
+		const dataUpdate = {
+			id_external: dataId,
+			status: paymentDataMp.status === 'approved' ? 1 : 0,
+			message: paymentDataMp.status_detail,
+			type_pay: paymentDataMp.payment_type_id,
+		}
+		const paymentData = await updatePay(id, dataUpdate)
+		if (!id || paymentData.confirmed === 1 || paymentDataMp.status !== 'approved') {
+			return false
+		}
+		const confirm = {
+			confirmed: 1,
+		}
+		await updatePay(id, confirm)
+		const payload = await paymentData.details.map((bill) => {
+			return {
+				cod_com: bill.cod_com,
+				suc_com: bill.suc_com,
+				num_com: bill.num_com,
+			}
+		})
+		const { data } = await axios.post('https://cesopol-procoop.arreg.la/api/FacturasGeneral/RegistrarSolicitud', payload, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
+			},
+		})
+		if (!data.resultado) {
+			return false
+		}
+		const requestParams = `${data.cod_pag}/${data.total_pagar}/${procoopCode}`
+		await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetAutorizarPagoSinEntidad/${requestParams}`, {
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
+			},
+		})
+		return true
 	} catch (e) {
-		return res.status(400).json(e)
+		return false
 	}
 }
 

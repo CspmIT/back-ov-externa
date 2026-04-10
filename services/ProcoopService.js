@@ -304,12 +304,11 @@ const adheridosSS = async (data) => {
                   LEFT JOIN	calles ca ON pe.cod_cal = ca.cod_cal 
                   LEFT JOIN	document d ON pe.tip_dni = d.cod_doc 
                   LEFT JOIN	servicio s ON ad.cod_ser = s.cod_ser
-                  WHERE	ad.cod_sum = :account AND ad.cod_ser IN (:ser1, :ser2) AND fec_baj IS NULL`
+                  WHERE	ad.cod_sum = :account AND ad.cod_ser IN (:ser) AND fec_baj IS NULL`
         const result = await SequelizeOncativo.query(query, {
             replacements: {
                 account: data.account,
-                ser1: data.ser[0],
-                ser2: data.ser[1],
+                ser: data.ser
             },
             type: SequelizeOncativo.QueryTypes.SELECT,
         })

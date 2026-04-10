@@ -31,7 +31,7 @@ const {
 const { verifyToken } = require('../middleware/Auth.middleware')
 const { logout } = require('../controllers/Auth.controller')
 const { getListState, getListCity, getListStreet, newStreet, getAddress, newStreetAPi, newStreetProcoop } = require('../controllers/Location.controller')
-const { getServicesCustomer, getDetailConsumption, getAllConsumptionsGroupedByAccount } = require('../controllers/Services.controller')
+const { getServicesCustomer, getDetailConsumption, getAllConsumptionsGroupedByAccount, getDataServiceSocial  } = require('../controllers/Services.controller')
 const { addCommentary, activePopups, Informations, ImageInformations, Popups } = require('../controllers/Managment.controller')
 // const {
 //     newRequestService,
@@ -119,5 +119,7 @@ router.get('/getUsersRegistered', verifyToken, usersRegistered)
 router.get('/payMethods', verifyToken, paymentMethods)
 router.post('/payLink', verifyToken, payLink)
 router.get('/getBillsCustomer', verifyToken, voucherCustomer)
+
+router.get('/getDataServiceSocial', verifyToken, getDataServiceSocial)
 
 module.exports = router

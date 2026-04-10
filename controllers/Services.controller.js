@@ -161,27 +161,34 @@ async function DetailServiceGraf(req) {
 	return DataServiceElectric
 }
 
-async function getDataServiceSocial(req) {
-	const dataServ = await getDataServiceGral(req)
-	const serviceCodes = codes.SV
-	const service = serviceCodes[req.service] == 'SEPELIO' ? [4, 90] : [3, 89]
-	const dataSearch = { ser: service, account: req.cod_sum }
-	const IncreasedService = await adheridosSS(dataSearch)
-	let dataAdherido = []
-	for (let data of IncreasedService) {
-		dataAdherido.push({
-			name: data.apellidos || '',
-			category: data.des_vin || '',
-			dni: data.num_dni || '',
-			groupBlood: data.gru_sgr || '',
-			burn: data.fec_nac || '',
-		})
+async function getDataServiceSocial(req, res) {
+	// sepelio[4, 90] : [3, 89]
+	try {
+		const { service, cod_sum } = req.query  
+		// const serviceCodes = codes.SV
+		// const service = serviceCodes[req.query.service] == 'SEPELIO' ? [4, 90] : [3, 89]
+		const dataSearch = { ser: service, account: cod_sum }
+		const IncreasedService = await adheridosSS(dataSearch)
+		let dataAdherido = []
+		for (let data of IncreasedService) {
+			dataAdherido.push({
+				name: data.apellidos || '',
+				category: data.des_vin || '',
+				dni: data.num_dni || '',
+				groupBlood: data.gru_sgr || '',
+				burn: data.fec_nac || '',
+			})
+		}
+		const datosSS = {
+			adheridos: dataAdherido,
+		}
+
+		res.status(200).json(datosSS)
+	} catch (error) {
+		console.log(error)
+		res.status(400).json({ error: error.message })
 	}
-	const datosSS = {
-		generalData: dataServ,
-		adheridos: dataAdherido,
-	}
-	return datosSS
+
 }
 
 module.exports = {
@@ -189,4 +196,5 @@ module.exports = {
 	getServicesCustomer,
 	getDetailConsumption,
 	getAllConsumptionsGroupedByAccount,
+	getDataServiceSocial
 }

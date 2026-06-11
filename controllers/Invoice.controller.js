@@ -9,15 +9,47 @@ async function getInvoice(req, res) {
 		const { id_procoop } = req.query
 		const all = req.query.all ? true : false
 		const today = new Date()
-		const accounts = await accountsCustomer(id_procoop) 
-		if (!accounts || accounts.length === 0) {
-			return res.status(404).json({ message: 'Error al buscar los datos' })
-		}
-		// Agregar cada account
-		const accountsArray = accounts.map((account) => account.COD_SUM)
-		const debts = await debtsCustomer(accountsArray, all)
-		if (!debts) {
-			return res.status(404).json({ message: 'Error al buscar los datos' })
+		let debts = []
+		if (all) {
+			const accounts = await accountsCustomer(id_procoop)
+			if (!accounts || accounts.length === 0) {
+				return res.status(404).json({ message: 'Error al buscar los datos' })
+			}
+			// Agregar cada account
+			const accountsArray = accounts.map((account) => account.COD_SUM)
+			debts = await debtsCustomer(accountsArray, all)
+			if (!debts) {
+				return res.status(404).json({ message: 'Error al buscar los datos' })
+			}
+		} else {
+			const data = await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetInfoDeudaSocio/${id_procoop}`, {
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
+				},
+			})
+			if (data.status === 200 && data.data.length > 0) {
+				debts = data.data.map((debt) => {
+					const saldo = parseFloat(debt.saldo) || 0
+					const recargo = parseFloat(debt.monto_recargo) || 0
+					return {
+						ID_FAC: debt.id_fac,
+						COD_COM: debt.cod_com,
+						SUC_COM: debt.suc_com,
+						NUM_COM: debt.num_com,
+						TIPO: debt.tipo,
+						VTO1: debt.vto1,
+						VTO2: debt.vto2,
+						VENCIMIENTO: debt.vencimiento,
+						COD_SUM: debt.cod_sum,
+						PERIODO: debt.periodo,
+						SALDO: saldo,
+						AMOUNT: saldo + recargo,
+						NUMERO: debt.numero_talon,
+						DEB_CRE: 1,
+					}
+				})
+			}
 		}
 		let invoices = {}
 		let phone = ''
@@ -35,8 +67,8 @@ async function getInvoice(req, res) {
 			}
 			if (debts[i].DEB_CRE !== 1) continue
 
-			var vto = today > new Date(debts[i].VTO1) ? debts[i].VTO2 : debts[i].VTO1
-			var total = today > new Date(debts[i].VTO1) ? debts[i].TOTAL2 : debts[i].TOTAL1
+			var vto = debts[i].VENCIMIENTO ? debts[i].VENCIMIENTO : today > new Date(debts[i].VTO1) ? debts[i].VTO2 : debts[i].VTO1
+			var total = debts[i].AMOUNT !== undefined ? debts[i].AMOUNT : today > new Date(debts[i].VTO1) ? debts[i].TOTAL2 : debts[i].TOTAL1
 			var pdf = debts[i]['COD_SUM'].toString().padStart(6, '0') + debts[i]['COD_COM'].toString().padStart(4, '0') + debts[i]['SUC_COM'].toString().padStart(4, '0') + debts[i]['NUM_COM'].toString().padStart(8, '0')
 			var voucher = `${typeInvoice[debts[i].COD_COM] || 'CSB'}-${debts[i]['SUC_COM'].toString().padStart(4, '0')}-${debts[i]['NUM_COM'].toString().padStart(8, '0')}`
 			var invoiceExists = false

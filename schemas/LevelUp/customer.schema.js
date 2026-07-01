@@ -14,10 +14,6 @@ const customerSchema = z.object({
         .number({ message: 'El numero de documento es requerido' })
         .int({ message: 'El numero de documento no puede ser decimal' })
         .positive({ message: 'El numero de documento no puede ser negativo' }),
-    sex: z
-        .number({ message: 'El sexo es requerido' })
-        .int({ message: 'El sexo no puede ser decimal' })
-        .positive({ message: 'El sexo no puede ser negativo' }),
     id_state: z
         .number({ message: 'La provincia es requerida' })
         .int({ message: 'La provincia no puede ser decimal' })

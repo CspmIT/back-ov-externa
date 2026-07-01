@@ -197,7 +197,7 @@ async function addCustomerUser(req, res) {
             number_customer: textToNumber(number_customer),
             document_type: textToNumber(document_type),
             document_number: textToNumber(document_number),
-            sex: textToNumber(sex),
+            sex: sex ? textToNumber(sex) : null,
             id_state: textToNumber(id_state),
             id_city: textToNumber(id_city),
             id_street: textToNumber(id_street),

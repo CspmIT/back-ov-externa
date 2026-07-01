@@ -7,7 +7,7 @@ const customerSchema = z.object({
         .positive({ message: 'El numero de socio no puede ser negativo' }),
     name_customer: z.string({ message: 'El nombre del socio es requerido' }),
     document_type: z
-        .number({ message: 'El tipo de documento es requerido' })
+        .number({ message: 'El tipo de documento es requerido' }) 
         .int({ message: 'El tipo de documento no puede ser decimal' })
         .positive({ message: 'El tipo de documento no puede ser negativo' }),
     document_number: z

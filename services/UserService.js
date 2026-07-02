@@ -372,13 +372,10 @@ const createAddressUser = async (dataUpdate, PersonData, t) => {
 }
 
 const createPerson = async (data, t) => {
-    try {
-        const person = await db.Person.create(data, { transaction: t })
-        return person
-    } catch (error) {
-        await t.rollback()
-        throw error
-    }
+    // La transaccion `t` es propiedad de quien llama (levelUp): el rollback lo
+    // hace el caller. Aca solo se propaga el error.
+    const person = await db.Person.create(data, { transaction: t })
+    return person
 }
 
 const updatePersonByNumberDocument = async (data) => {
@@ -404,112 +401,112 @@ const createPhysicalIfNotExists = async (
     customerProcoop,
     t
 ) => {
-    try {
-        const physical = await db.Person_physical.create(
-            {
-                name: user.name_register,
-                last_name: user.last_name_register,
-                type_dni: data.document_type,
-                num_dni: data.document_number,
-                born_date: formatDate(data.birthdate),
-                id_type_sex: data.sex,
-                id_person: person.id,
-            },
-            { transaction: t }
-        )
+    // La transaccion `t` es propiedad de quien llama (levelUp): el rollback lo
+    // hace el caller. Aca solo se propaga el error.
+    const physical = await db.Person_physical.create(
+        {
+            name: user.name_register,
+            last_name: user.last_name_register,
+            type_dni: data.document_type,
+            num_dni: data.document_number,
+            born_date: formatDate(data.birthdate),
+            id_type_sex: data.sex,
+            id_person: person.id,
+        },
+        { transaction: t }
+    )
 
-        // Creo la direccion y la realaciono a Person Adress
-        const address = await db.Address.create(
-            {
-                number_address: data.number_address,
-                id_street: data.id_street,
-                id_city: data.id_city,
-                id_state: data.id_state,
-            },
-            { transaction: t }
-        )
+    // Creo la direccion y la realaciono a Person Adress
+    const address = await db.Address.create(
+        {
+            number_address: data.number_address,
+            id_street: data.id_street,
+            id_city: data.id_city,
+            id_state: data.id_state,
+        },
+        { transaction: t }
+    )
 
-        await db.Person_Address.create(
-            {
-                status: true,
-                id_person: person.id,
-                id_address: address.id,
-            },
-            { transaction: t }
-        )
+    await db.Person_Address.create(
+        {
+            status: true,
+            id_person: person.id,
+            id_address: address.id,
+        },
+        { transaction: t }
+    )
 
-        // Creo la relacion de User_People
-        const userPeople = await db.User_People.create(
-            {
-                procoop_number: data.number_customer,
-                procoop_last_name: customerProcoop[0].APELLIDOS,
-                id_user: user.id,
-                level: data.level,
-                primary_account: true,
-                status: 1,
-            },
-            { transaction: t }
-        )
+    // Creo la relacion de User_People
+    const userPeople = await db.User_People.create(
+        {
+            procoop_number: data.number_customer,
+            procoop_last_name: customerProcoop[0].APELLIDOS,
+            id_user: user.id,
+            level: data.level,
+            primary_account: true,
+            status: 1,
+        },
+        { transaction: t }
+    )
 
-        return {
-            person,
-            physical,
-            userPeople,
-        }
-    } catch (error) {
-        await t.rollback()
-        throw error
+    return {
+        person,
+        physical,
+        userPeople,
     }
 }
 
-const createLegalIfNotExists = async (data, user) => {
-    const t = await db.sequelize.transaction()
-    try {
-        const legal = await db.Person_legal.create(
-            {
-                social_raeson: user.name_register,
-                fantasy_name: user.last_name_register,
-                cuit: data.document_number,
-                date_registration: formatDate(data.birthdate),
-            },
-            { transaction: t }
-        )
+const createLegalIfNotExists = async (data, person, user, customerProcoop, t) => {
+    // La transaccion `t` es propiedad de quien llama (levelUp): el rollback lo
+    // hace el caller. Aca solo se propaga el error.
+    const legal = await db.Person_legal.create(
+        {
+            social_raeson: user.name_register,
+            fantasy_name: user.last_name_register,
+            cuit: data.document_number,
+            date_registration: formatDate(data.birthdate),
+            id_person: person.id,
+        },
+        { transaction: t }
+    )
 
-        // Creo la direccion y la realaciono a Person Adress
-        const address = await db.Address.create(
-            {
-                number_address: data.number_address,
-                id_street: data.id_street,
-                id_city: data.id_city,
-                id_state: data.id_state,
-            },
-            { transaction: t }
-        )
+    // Creo la direccion y la realaciono a Person Adress
+    const address = await db.Address.create(
+        {
+            number_address: data.number_address,
+            id_street: data.id_street,
+            id_city: data.id_city,
+            id_state: data.id_state,
+        },
+        { transaction: t }
+    )
 
-        await db.Person_Address.create(
-            {
-                status: true,
-                id_person: person.id,
-                id_address: address.id,
-            },
-            { transaction: t }
-        )
+    await db.Person_Address.create(
+        {
+            status: true,
+            id_person: person.id,
+            id_address: address.id,
+        },
+        { transaction: t }
+    )
 
-        // Creo la relacion de User_People
-        const userPeople = await db.User_People.create(
-            {
-                procoop_number: data.number_customer,
-                procoop_last_name: customerProcoop[0].APELLIDOS,
-                id_user: user.id,
-                level: data.level,
-                primary_account: true,
-                status: 1,
-            },
-            { transaction: t }
-        )
-    } catch (error) {
-        await t.rollback()
-        throw error
+    // Creo la relacion de User_People
+    const userPeople = await db.User_People.create(
+        {
+            procoop_number: data.number_customer,
+            procoop_last_name: customerProcoop[0].APELLIDOS,
+            id_user: user.id,
+            level: data.level,
+            primary_account: true,
+            status: 1,
+        },
+        { transaction: t }
+    )
+
+    return {
+        person,
+        legal,
+        userPeople,
     }
 }
 
@@ -569,6 +566,9 @@ const levelUp = async (data) => {
         if (!user) throw new Error('El usuario no existe')
         const customerProcoop = await findCustomerByCodSoc(data.number_customer)
         if (!customerProcoop) throw new Error('El socio no existe')
+        // Evito crear una relacion duplicada si el socio ya esta vinculado al usuario
+        if (await existAccountInUser(data.number_customer, user.id))
+            throw new Error('El socio ya esta relacionado con el usuario')
         const person = await db.Person.findOne({
             where: { number_document: data.document_number },
         })
@@ -602,7 +602,19 @@ const levelUp = async (data) => {
                     )
                 await t.commit()
                 return { person, physical, userPeople, user }
-            } // Falta crear la persona legal
+            } else {
+                // Persona juridica
+                const { person, legal, userPeople } =
+                    await createLegalIfNotExists(
+                        data,
+                        people,
+                        user,
+                        customerProcoop,
+                        t
+                    )
+                await t.commit()
+                return { person, legal, userPeople, user }
+            }
         } else {
             //Agrego el id de la persona al usuario
             await user.update(

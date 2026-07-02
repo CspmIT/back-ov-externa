@@ -3,8 +3,8 @@ const { db } = require('../models')
 const { Preference, default: MercadoPagoConfig } = require('mercadopago')
 
 const savePay = async (data, bills) => {
+	const t = await db.sequelize.transaction()
 	try {
-		const t = await db.sequelize.transaction()
 		const pay = await db.Pay.create(data, { transaction: t })
 		const details = bills.map((bill) => {
 			return {
@@ -23,13 +23,14 @@ const savePay = async (data, bills) => {
 		await t.commit()
 		return pay.id
 	} catch (error) {
+		await t.rollback()
 		throw new Error(error)
 	}
 }
 
 const updatePay = async (id, data) => {
+	const t = await db.sequelize.transaction()
 	try {
-		const t = await db.sequelize.transaction()
 		const pay = await db.Pay.findOne({
 			where: {
 				id: id,
@@ -40,12 +41,14 @@ const updatePay = async (id, data) => {
 					as: 'details',
 				},
 			],
+			transaction: t,
 		})
 		if (!pay) throw new Error('No se encontró el pago')
 		await pay.update(data, { transaction: t })
 		await t.commit()
 		return pay
 	} catch (error) {
+		await t.rollback()
 		throw new Error(error)
 	}
 }

@@ -45,6 +45,12 @@ const customerSchema = z.object({
     birthdate: z
         .string({ message: 'La fecha de nacimiento es requerida' })
         .date({ message: 'La fecha de nacimiento no es valida' }),
+    sex: z
+        .number({ message: 'El sexo no es valido' })
+        .int({ message: 'El sexo no puede ser decimal' })
+        .positive({ message: 'El sexo no puede ser negativo' })
+        .nullable()
+        .optional(),
     id: z
         .number({ message: 'El id del usuario es requerido' })
         .int({ message: 'El id del usuario no puede ser decimal' })

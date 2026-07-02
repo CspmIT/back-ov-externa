@@ -30,14 +30,11 @@ const getPeopleByNumberDocument = async (number_document, type_person) => {
 }
 
 const newOrUpdatePeople = async (people, person) => {
-	const t = await db.sequelize.transaction()
-
-	try {
+	// Forma callback: Sequelize hace commit/rollback automatico, asi la
+	// transaccion no puede quedar abierta cuando se implemente el cuerpo.
+	return db.sequelize.transaction(async (t) => {
 		// Creo o actualizo la persona
-	} catch (error) {
-		await t.rollback()
-		throw error
-	}
+	})
 }
 const savePerson = async (PersonData) => {
 	return db.sequelize.transaction(async (t) => {

@@ -87,12 +87,14 @@ async function getInvoice(req, res) {
 				}
 			}
 			if (!invoiceExists) {
-				var status
-				if (parseInt(debts[i].SALDO) > 0) {
-					status = 0
-				}
+				// status: 0 = impaga (rojo), 1 = paga/acreditada (verde), 2 = pago informado en OV pendiente de acreditación (amarillo)
 				var isPayed = await billPayed(debts[i])
-				status = isPayed ? 2 : status
+				var status
+				if (parseFloat(debts[i].SALDO) > 0) {
+					status = isPayed ? 2 : 0
+				} else {
+					status = 1
+				}
 				var fact = {
 					id: debts[i].ID_FAC,
 					type: debts[i].TIPO,
@@ -106,7 +108,7 @@ async function getInvoice(req, res) {
 					cod_com: debts[i].COD_COM,
 					suc_com: debts[i].SUC_COM,
 					num_com: debts[i].NUM_COM,
-					checkbox: status === 2 ? false : true,
+					checkbox: status === 0,
 				}
 				invoices[debts[i].COD_SUM].list.push(fact)
 			}

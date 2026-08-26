@@ -87,7 +87,7 @@ async function getInvoice(req, res) {
 				}
 			}
 			if (!invoiceExists) {
-				// status: 0 = impaga (rojo), 1 = paga/acreditada (verde), 2 = pago informado en OV pendiente de acreditación (amarillo)
+				// Estados: 0 = impaga (rojo), 1 = paga/acreditada (verde), 2 = pago informado en OV pendiente de acreditación (amarillo)
 				var isPayed = await billPayed(debts[i])
 				var status
 				if (parseFloat(debts[i].SALDO) > 0) {

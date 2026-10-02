@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
 			status: DataTypes.INTEGER,
 			confirmed: DataTypes.INTEGER,
 			message: DataTypes.STRING,
+			cod_pag: DataTypes.STRING,
+			total_procoop: DataTypes.DECIMAL,
 		},
 		{
 			sequelize,

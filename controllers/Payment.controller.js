@@ -178,8 +178,18 @@ const payCancelMp = async (dataId) => {
 			accessToken,
 		})
 		const payment = new Payment(client)
-		const paymentDataMp = await payment.capture({ id: dataId })
+		let paymentDataMp
+		try {
+			paymentDataMp = await payment.capture({ id: dataId })
+		} catch (e) {
+			// En los reintentos de MP el pago ya esta capturado y capture() falla: lo consulto en su lugar
+			paymentDataMp = await payment.get({ id: dataId })
+		}
 		const id = parseInt(paymentDataMp.external_reference)
+		if (!id) {
+			console.error(`Webhook MP ${dataId}: external_reference invalido:`, paymentDataMp.external_reference)
+			return false
+		}
 		const dataUpdate = {
 			id_external: dataId,
 			status: paymentDataMp.status === 'approved' ? 1 : 0,
@@ -187,38 +197,52 @@ const payCancelMp = async (dataId) => {
 			type_pay: paymentDataMp.payment_type_id,
 		}
 		const paymentData = await updatePay(id, dataUpdate)
-		if (!id || paymentData.confirmed === 1 || paymentDataMp.status !== 'approved') {
+		if (paymentDataMp.status !== 'approved') {
 			return false
 		}
-		const confirm = {
-			confirmed: 1,
+		// Ya imputado en Procoop: devuelvo OK para que MP deje de reintentar
+		if (paymentData.confirmed === 1) {
+			return true
 		}
-		await updatePay(id, confirm)
-		const payload = await paymentData.details.map((bill) => {
-			return {
-				cod_com: bill.cod_com,
-				suc_com: bill.suc_com,
-				num_com: bill.num_com,
+		const headersProcoop = {
+			'Content-Type': 'application/json',
+			Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
+		}
+		// Si un intento anterior ya registro la solicitud (cod_pag guardado), no la registro de nuevo para no duplicarla
+		let codPag = paymentData.cod_pag
+		let totalPagar = paymentData.total_procoop
+		if (!codPag) {
+			const payload = paymentData.details.map((bill) => {
+				return {
+					cod_com: bill.cod_com,
+					suc_com: bill.suc_com,
+					num_com: bill.num_com,
+				}
+			})
+			const { data } = await axios.post('https://cesopol-procoop.arreg.la/api/FacturasGeneral/RegistrarSolicitud', payload, {
+				headers: headersProcoop,
+			})
+			if (!data.resultado) {
+				console.error(`Pago ${id}: Procoop rechazo RegistrarSolicitud:`, JSON.stringify(data))
+				return false
 			}
+			codPag = data.cod_pag
+			totalPagar = data.total_pagar
+			await updatePay(id, { cod_pag: codPag, total_procoop: totalPagar })
+		}
+		const requestParams = `${codPag}/${totalPagar}/${procoopCode}`
+		const { data: auth } = await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetAutorizarPagoSinEntidad/${requestParams}`, {
+			headers: headersProcoop,
 		})
-		const { data } = await axios.post('https://cesopol-procoop.arreg.la/api/FacturasGeneral/RegistrarSolicitud', payload, {
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
-			},
-		})
-		if (!data.resultado) {
+		if (auth && auth.resultado === false) {
+			console.error(`Pago ${id}: Procoop no autorizo la solicitud ${codPag}:`, JSON.stringify(auth))
 			return false
 		}
-		const requestParams = `${data.cod_pag}/${data.total_pagar}/${procoopCode}`
-		await axios.get(`https://cesopol-procoop.arreg.la/api/FacturasGeneral/GetAutorizarPagoSinEntidad/${requestParams}`, {
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
-			},
-		})
+		// Recien aca el pago queda confirmado: si algo de lo anterior fallo, el reintento de MP vuelve a intentar la imputacion
+		await updatePay(id, { confirmed: 1 })
 		return true
 	} catch (e) {
+		console.error(`Error al imputar en Procoop el pago MP ${dataId}:`, e.message)
 		return false
 	}
 }

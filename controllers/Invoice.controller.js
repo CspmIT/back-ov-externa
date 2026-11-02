@@ -27,6 +27,8 @@ async function getInvoice(req, res) {
 					'Content-Type': 'application/json',
 					Authorization: 'proc00pkey-4tkmwyzggj-Coop-371',
 				},
+				// Si la API de Procoop cuelga, cortar rapido para que el front pueda avisar en vez de quedar esperando
+				timeout: 15000,
 			})
 			if (data.status === 200 && data.data.length > 0) {
 				debts = data.data.map((debt) => {
